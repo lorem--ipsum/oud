@@ -1,0 +1,15 @@
+.icon-button {
+  user-select: none;
+  cursor: pointer;
+  color: rgba(219, 219, 219, 1.00);
+
+  &:hover {
+    &.primary {
+      color: rgba(41, 53, 146, 1.00);
+    }
+
+    &.warn {
+      color: rgba(198, 41, 40, 1.00);
+    }
+  }
+}

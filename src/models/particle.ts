@@ -1,7 +1,7 @@
 import { CartesianVector } from '../utils/math-utils';
 import { Attractor } from './attractor';
 
-const LIFE_SPAN = 1000;
+const LIFE_SPAN = 200;
 
 export class Particle {
 
@@ -23,8 +23,10 @@ export class Particle {
 
   public time = 0;
   private timeAtCreation = 0;
+  private lifeSpan: number;
 
   constructor(params: any) {
+    this.time = params.time;
     this.timeAtCreation = params.time;
 
     this.px = params.position.x;
@@ -41,6 +43,7 @@ export class Particle {
     }
 
     this.color = params.color || [172, 207, 165];
+    this.lifeSpan = params.lifeSpan || LIFE_SPAN;
   }
 
   update(time: number, attractors: Attractor[] = []) {
@@ -63,7 +66,7 @@ export class Particle {
   }
 
   kill() {
-    this.time = this.timeAtCreation + LIFE_SPAN;
+    this.time = this.timeAtCreation + this.lifeSpan;
   }
 
   get age() {
@@ -76,23 +79,10 @@ export class Particle {
   }
 
   isDead() {
-    return this.age >= LIFE_SPAN;
+    return this.age >= this.lifeSpan;
   }
 
-  getOpacity() {
-    return this.age < 0 ? 0 : (1 - this.age / LIFE_SPAN);
-  }
-
-  applyForce(force: CartesianVector) {
-    this.ax += force.x;
-    this.ay += force.y;
-  }
-
-  drawOn(ctx: CanvasRenderingContext2D) {
-    const { px, py } = this;
-
-    const color = this.color;
-    ctx.fillStyle =  `hsla(${color[0]}, ${color[1]}%, ${color[2]}%, ${this.getOpacity()})`;
-    ctx.fillRect(px - 1, py - 1, 2, 2);
+  get opacity() {
+    return this.age < 0 ? 0 : (1 - this.age / this.lifeSpan);
   }
 }

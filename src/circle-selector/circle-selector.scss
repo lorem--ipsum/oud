@@ -1,0 +1,18 @@
+.circle-selector {
+  animation: spinner linear infinite 20s;
+
+  fill: none;
+  stroke: steelblue;
+  stroke-dasharray: 8 2;
+  stroke-width: 3px;
+
+  @keyframes spinner {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(-360deg);
+    }
+  }
+
+}

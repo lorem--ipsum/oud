@@ -1,50 +1,72 @@
 import { BaseImmutable, Property } from 'immutable-class';
 
 import { cartesianFromPolar } from '../utils/math-utils';
-import { Variable } from './variable';
+import { Variable, VariableValue } from './variable';
 import { Particle } from './particle';
 
 export interface EmitterValue {
-  label?: string;
-  x?: string | number;
-  y?: string | number;
-  angle?: string | number;
-  spread?: string | number;
-  initialVelocity?: string | number;
-  batchSize?: string | number;
-  emissionRate?: string | number;
-  color?: string | number;
+  name: string;
+  label?: VariableValue | string;
+  x?: VariableValue | string;
+  y?: VariableValue | string;
+  angle?: VariableValue | string;
+  spread?: VariableValue | string;
+  velocity?: VariableValue | string;
+  batchSize?: VariableValue | string;
+  emissionRate?: VariableValue | string;
+  hue?: VariableValue | string;
+  saturation?: VariableValue | string;
+  lightness?: VariableValue | string;
+  lifeSpan?: VariableValue | string;
+  time?: number;
 }
 
 export interface EmitterJS {
+  name: string;
   label?: string;
   x?: string;
   y?: string;
   angle?: string;
   spread?: string;
-  initialVelocity?: string;
+  velocity?: string;
   batchSize?: string;
   emissionRate?: string;
-  color?: string;
+  hue?: string;
+  saturation?: string;
+  lightness?: string;
+  lifeSpan?: string;
+  time?: number;
 }
 
 export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
   static PROPERTIES: Property[] = [
-    { name: 'label', defaultValue: 'Emitter', immutableClass: Variable },
-    { name: 'x', defaultValue: '50', immutableClass: Variable },
-    { name: 'y', defaultValue: '50', immutableClass: Variable },
-    { name: 'angle', defaultValue: 'pi', immutableClass: Variable },
-    { name: 'spread', defaultValue: 'pi/4', immutableClass: Variable },
-    { name: 'velocity', defaultValue: '20', immutableClass: Variable },
-    { name: 'batchSize', defaultValue: '10', immutableClass: Variable },
-    { name: 'emissionRate', defaultValue: '1', immutableClass: Variable },
-    { name: 'color', defaultValue: '[255, 90, 70]', immutableClass: Variable }
+    { name: 'name' },
+    { name: 'label', defaultValue: 'Emitter' },
+    { name: 'x', defaultValue: Variable.fromJS('50'), immutableClass: Variable },
+    { name: 'y', defaultValue: Variable.fromJS('50'), immutableClass: Variable },
+    { name: 'angle', defaultValue: Variable.fromJS('pi'), immutableClass: Variable },
+    { name: 'spread', defaultValue: Variable.fromJS('pi/4'), immutableClass: Variable },
+    { name: 'velocity', defaultValue: Variable.fromJS('20'), immutableClass: Variable },
+    { name: 'batchSize', defaultValue: Variable.fromJS('10'), immutableClass: Variable },
+    { name: 'emissionRate', defaultValue: true, immutableClass: Variable },
+    { name: 'lifeSpan', defaultValue: Variable.fromJS('500'), immutableClass: Variable },
+
+    { name: 'hue', defaultValue: Variable.fromJS('255'), immutableClass: Variable },
+    { name: 'saturation', defaultValue: Variable.fromJS('90'), immutableClass: Variable },
+    { name: 'lightness', defaultValue: Variable.fromJS('70'), immutableClass: Variable },
+    { name: 'time', defaultValue: 0 }
+
   ];
 
-  static fromJS(params: EmitterValue = {}) {
+  static fromJS(params: EmitterValue) {
     return new Emitter(BaseImmutable.jsToValue(Emitter.PROPERTIES, params));
   }
 
+  static isEmitter(candidate: any): candidate is Emitter {
+    return candidate instanceof Emitter;
+  }
+
+  public name: string;
   private label: Variable;
   private x: Variable;
   private y: Variable;
@@ -53,100 +75,101 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
   private velocity: Variable;
   private batchSize: Variable;
   private emissionRate: Variable;
-  private color: Variable;
+  private hue: Variable;
+  private saturation: Variable;
+  private lightness: Variable;
+  private lifeSpan: Variable;
 
-  private time = 0;
+  private time: number;
 
   constructor(params: EmitterValue) {
     super(params);
   }
 
-  public getLabel() {
-    return this.label.getValue();
-  }
+  getName: () => string;
+  getLabel: () => string;
+  getX: () => Variable;
+  getY: () => Variable;
+  getAngle: () => Variable;
+  getSpread: () => Variable;
+  getVelocity: () => Variable;
+  getBatchSize: () => Variable;
+  getEmissionRate: () => Variable;
 
-  public getX() {
-    return this.x.getValue();
-  }
+  getHue: () => Variable;
+  getSaturation: () => Variable;
+  getLightness: () => Variable;
 
-  public getY() {
-    return this.y.getValue();
-  }
+  getLifeSpan: () => Variable;
 
-  public getAngle() {
-    return this.angle.getValue();
-  }
+  getCurrentColor() {
+    const color = [
+      this.getHue().getValue(),
+      this.getSaturation().getValue(),
+      this.getLightness().getValue()
+    ];
 
-  public getSpread() {
-    return this.spread.getValue();
-  }
-
-  public getVelocity() {
-    return this.velocity.getValue();
-  }
-
-  public getBatchSize() {
-    return this.batchSize.getValue();
-  }
-
-  public getEmissionRate() {
-    return this.emissionRate.getValue();
-  }
-
-  public getColor() {
-    return this.color.getValue();
+    return `hsl(${color[0]}, ${color[1]}%, ${color[2]}%)`;
   }
 
   getNewParticle(index: number, count: number): Particle {
-    const initialVelocity = this.getVelocity();
-    const spread = this.getSpread();
-    const angle = this.getAngle();
-    const color = this.getColor();
+    const spread = this.getSpread().getValue();
+    const angle = this.getAngle().getValue();
+    const color = [
+      this.getHue().getValue(),
+      this.getSaturation().getValue(),
+      this.getLightness().getValue()
+    ];
+    const x = this.getX().getValue();
+    const y = this.getY().getValue();
+    const lifeSpan = this.getLifeSpan().getValue();
 
     const step = count > 1 ?  (spread / (count - 1)) * index : spread / 2;
 
     const velocity = cartesianFromPolar({
-      radius: initialVelocity / 20,
+      radius: this.getVelocity().getValue() / 20,
       theta: angle - spread * .5 + step
     });
 
     return new Particle({
       time: this.time,
-      position: {x: this.getX(), y: this.getY()},
+      position: {x, y},
       velocity,
-      color
-    }).update(this.time);
+      acceleration: {x: 0, y: 0},
+      color,
+      lifeSpan
+    });
   }
 
-  update(time: number): Particle[] {
-    this.x.update({t: time});
-    this.y.update({t: time});
-    this.angle.update({t: time});
-    this.spread.update({t: time});
-    this.velocity.update({t: time});
-    this.batchSize.update({t: time});
-    this.emissionRate.update({t: time});
-    this.color.update({t: time});
+  update(t: number, j: number) {
+    const v = this.valueOf();
 
-    if (time <= this.time) {
-      return [];
-    }
+    v.x = this.getX().update({t, j});
+    v.y = this.getY().update({t, j});
+    v.angle = this.getAngle().update({t, j});
+    v.spread = this.getSpread().update({t, j});
+    v.velocity = this.getVelocity().update({t, j});
+    v.batchSize = this.getBatchSize().update({t, j});
+    v.emissionRate = this.getEmissionRate().update({t, j});
+    v.hue = this.getHue().update({t, j});
+    v.saturation = this.getSaturation().update({t, j});
+    v.lightness = this.getLightness().update({t, j});
+    v.lifeSpan = this.getLifeSpan().update({t, j});
+    v.time = t;
 
-    this.time = time;
+    return new Emitter(v);
+  }
 
-    const rate = this.getEmissionRate();
+  emit(target: Particle[]) {
+    const rate = this.getEmissionRate().getValue();
 
-    if (!rate) return [];
+    if (!rate) return;
 
-    const batchSize = this.getBatchSize();
-
-    const newParticles: Particle[] = [];
+    const batchSize = this.getBatchSize().getValue();
 
     for (let i = 0; i < batchSize; i++) {
-      newParticles.push(this.getNewParticle(i, batchSize));
+      target.push(this.getNewParticle(i, batchSize));
     }
-
-    return newParticles;
   }
 
 }

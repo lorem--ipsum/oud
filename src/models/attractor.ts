@@ -1,5 +1,5 @@
 import { BaseImmutable, Property } from 'immutable-class';
-import { Variable } from './variable';
+import { Variable, VariableValue } from './variable';
 import { Particle } from './particle';
 
 import { CartesianVector } from '../utils/math-utils';
@@ -7,70 +7,73 @@ import { CartesianVector } from '../utils/math-utils';
 const G = 0.1;
 
 export interface AttractorValue {
+  name: string;
   label?: string;
-  x?: string;
-  y?: string;
-  mass?: string;
+  x?: VariableValue | string;
+  y?: VariableValue | string;
+  mass?: VariableValue | string;
+  time?: number;
 }
 
 export interface AttractorJS {
+  name: string;
   label?: string;
   x?: string;
   y?: string;
   mass?: string;
+  time?: number;
 }
 
 export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
+  static isAttractor(candidate: any): candidate is Attractor {
+    return candidate instanceof Attractor;
+  }
+
   static PROPERTIES: Property[] = [
-    { name: 'label', defaultValue: 'Attractor', immutableClass: Variable },
-    { name: 'x', defaultValue: '250', immutableClass: Variable },
-    { name: 'y', defaultValue: '250', immutableClass: Variable },
-    { name: 'mass', defaultValue: '10', immutableClass: Variable }
+    { name: 'name' },
+    { name: 'label', defaultValue: 'Attractor' },
+    { name: 'x', defaultValue: Variable.fromJS({expression: '250'}), immutableClass: Variable },
+    { name: 'y', defaultValue: Variable.fromJS({expression: '250'}), immutableClass: Variable },
+    { name: 'mass', defaultValue: Variable.fromJS({expression: '10'}), immutableClass: Variable },
+    { name: 'time', defaultValue: 0 }
   ];
 
   static fromJS(params: AttractorValue) {
     return new Attractor(BaseImmutable.jsToValue(Attractor.PROPERTIES, params));
   }
 
-  private label: Variable;
+  public name: string;
+  private label: string;
   private x: Variable;
   private y: Variable;
   private mass: Variable;
+  private time: number;
 
-  private time = 0;
-
-  constructor(params: AttractorValue = {}) {
+  constructor(params: AttractorValue) {
     super(params);
   }
 
-  public getLabel() {
-    return this.label.getValue();
-  }
+  public getName: () => string;
+  public getLabel: () => string;
 
-  public getX() {
-    return this.x.getValue();
-  }
+  public getX: () => Variable;
+  public getY: () => Variable;
+  public getMass: () => Variable;
 
-  public getY() {
-    return this.y.getValue();
-  }
-
-  public getMass() {
-    return this.mass.getValue();
-  }
-
-  update(index: number) {
-    this.time = index;
-    this.mass.update({t: this.time});
-    this.x.update({t: this.time});
-    this.y.update({t: this.time});
+  update(t: number, j: number) {
+    return this.changeMany({
+      mass: this.getMass().update({t, j}),
+      x: this.getX().update({t, j}),
+      y: this.getY().update({t, j}),
+      time: t
+    });
   }
 
   getAttractionForce(p: Particle): CartesianVector {
-    const mass = this.getMass();
+    const mass = this.getMass().getValue();
 
-    let x = this.getX() - p.px;
-    let y = this.getY() - p.py;
+    let x = this.getX().getValue() - p.px;
+    let y = this.getY().getValue() - p.py;
 
     const squaredMag = x * x + y * y;
     const mag = Math.sqrt(squaredMag);

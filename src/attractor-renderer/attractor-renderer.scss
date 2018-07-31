@@ -1,0 +1,25 @@
+.attractor-renderer {
+  .event-target {
+    fill: white;
+    fill-opacity: 10e-6;
+    cursor: pointer;
+
+    &.selected {
+      stroke: steelblue;
+      stroke-dasharray: 1 1;
+    }
+  }
+
+  .background {
+
+  }
+
+  &.positive .background {
+    fill: green;
+  }
+
+  &.negative .background {
+    fill: red;
+  }
+
+}

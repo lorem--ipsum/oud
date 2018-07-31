@@ -1,0 +1,42 @@
+.detail {
+  width: 500px;
+
+  .title-row {
+    display: flex;
+    margin-bottom: 10px;
+
+    > * {
+      line-height: 25px;
+    }
+
+    .spacer {
+      flex: 1;
+    }
+  }
+
+  .form {
+    width: 100%;
+
+    .row {
+      display: flex;
+
+      > * {
+        flex-basis: 50%;
+
+        &:not(:first-child) {
+          margin-left: 5px;
+        }
+
+        &:not(:last-child) {
+          margin-right: 5px;
+        }
+      }
+
+      &:not(:last-child) {
+        margin-bottom: 20px;
+      }
+
+    }
+
+  }
+}

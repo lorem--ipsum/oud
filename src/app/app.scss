@@ -1,2 +1,55 @@
 .app {
+  width: 500px;
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translate(-50%, 0);
+
+  .info {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    font-size: 10px;
+    user-select: none;
+  }
+
+  svg.overlay {
+    border: 1px solid steelblue;
+    position: absolute;
+    top: -1px;
+    left: -1px;
+
+    .event-target {
+      fill: white;
+      opacity: 10e-6;
+    }
+  }
+
+  .detail {
+    position: absolute;
+    top: 0px;
+    right: -10px;
+    transform: translate(100%, 0);
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    user-select: none;
+
+    .spacer {
+      flex: 1;
+    }
+
+    button {
+
+      &:not(:first-child) {
+        margin-left: 5px;
+      }
+
+      &:not(:last-child) {
+        margin-right: 5px;
+      }
+    }
+  }
 }
