@@ -104,9 +104,9 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
 
   getCurrentColor() {
     const color = [
-      this.getHue().getValue(),
-      this.getSaturation().getValue(),
-      this.getLightness().getValue()
+      Math.floor(this.getHue().getValue()),
+      Math.floor(this.getSaturation().getValue()),
+      Math.floor(this.getLightness().getValue())
     ];
 
     return `hsl(${color[0]}, ${color[1]}%, ${color[2]}%)`;

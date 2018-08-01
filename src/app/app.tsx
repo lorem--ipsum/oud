@@ -38,13 +38,13 @@ export class App extends React.Component<{}, AppState> {
     this.state = this.getStateFromHash() || this.getDefaultState();
 
     window.addEventListener('hashchange', () => {
-      // if (window.location.hash === '#' + this.getHashFromState()) return;
+      if (window.location.hash === '#' + this.getHashFromState()) return;
 
-      // const newState = this.getStateFromHash();
-      // (newState.emitters as Emitter[]).forEach((e, i) => e.update(this.time, i));
-      // (newState.attractors as Attractor[]).forEach((a, i) => a.update(this.time, i));
+      const newState = this.getStateFromHash();
+      (newState.emitters as Emitter[]).forEach((e, i) => e.update(this.time, i));
+      (newState.attractors as Attractor[]).forEach((a, i) => a.update(this.time, i));
 
-      // this.setState(newState)
+      this.setState(newState)
     });
   }
 
@@ -180,7 +180,7 @@ export class App extends React.Component<{}, AppState> {
       p.update(this.time, newAttractors);
       newParticles.push(p);
 
-      const color = `hsla(${p.color[0]}, ${p.color[1]}%, ${p.color[2]}%, ${p.opacity})`;
+      const color = `hsla(${p.color[0]}, ${p.color[1]}%, ${p.color[2]}%, 1)`;
       if (color !== lastColor) ctx.fillStyle = color;
 
       ctx.fillRect(p.px - 1, p.py - 1, 2, 2);
@@ -195,6 +195,13 @@ export class App extends React.Component<{}, AppState> {
     this.updateInfo();
   }
 
+  private clear() {
+    if (!this.canvas) return;
+
+    this.canvas.height = 500;
+    this.canvas.width = 500;
+  }
+
   updateInfo() {
     if (!this.info) return;
 
@@ -203,12 +210,6 @@ export class App extends React.Component<{}, AppState> {
     this.info.innerHTML = `${this.particles.length} particles, frame #${this.time}, ${fps}fps`;
   }
 
-  private clear() {
-    if (!this.canvas) return;
-
-    this.canvas.height = 500;
-    this.canvas.width = 500;
-  }
 
   playPause = () => {
     const { paused } = this.state;
