@@ -25,9 +25,9 @@ export class App extends React.Component<{}, AppState> {
   private info: HTMLDivElement;
 
   private now: number;
-  private before: number;
+  private before = Date.now();
   private leaps = 1;
-  private fps: number;
+  private fps: number[] = [];
   private time = 0;
 
   private particles: Particle[] = [];
@@ -155,7 +155,7 @@ export class App extends React.Component<{}, AppState> {
   update(attractors: Attractor[], emitters: Emitter[]) {
     // FPS
     this.now = Date.now();
-    this.fps = Math.round(1000 / (this.now - this.before));
+    if (this.fps.push(1000 / (this.now - this.before)) === 100) this.fps.shift();
     this.before = this.now;
 
     this.clear();
@@ -166,9 +166,10 @@ export class App extends React.Component<{}, AppState> {
     let newParticles: Particle[] = [];
     newEmitters.forEach(e => e.emit(newParticles));
 
-    const ctx = this.canvas.getContext('2d');
+    const ctx = this.canvas.getContext('2d', { alpha: false });
 
     let i = this.particles.length;
+    let lastColor = '';
     while (i--) {
       const p = this.particles[i];
 
@@ -179,7 +180,9 @@ export class App extends React.Component<{}, AppState> {
       p.update(this.time, newAttractors);
       newParticles.push(p);
 
-      ctx.fillStyle = `hsla(${p.color[0]}, ${p.color[1]}%, ${p.color[2]}%, ${p.opacity})`;
+      const color = `hsla(${p.color[0]}, ${p.color[1]}%, ${p.color[2]}%, ${p.opacity})`;
+      if (color !== lastColor) ctx.fillStyle = color;
+
       ctx.fillRect(p.px - 1, p.py - 1, 2, 2);
     }
 
@@ -195,7 +198,9 @@ export class App extends React.Component<{}, AppState> {
   updateInfo() {
     if (!this.info) return;
 
-    this.info.innerHTML = `${this.particles.length} particles, frame #${this.time}, ${this.fps}fps`;
+    const fps = Math.round(this.fps.reduce(((total, a) => total + a), 0) / this.fps.length);
+
+    this.info.innerHTML = `${this.particles.length} particles, frame #${this.time}, ${fps}fps`;
   }
 
   private clear() {
