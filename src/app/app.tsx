@@ -38,13 +38,13 @@ export class App extends React.Component<{}, AppState> {
     this.state = this.getStateFromHash() || this.getDefaultState();
 
     window.addEventListener('hashchange', () => {
-      if (window.location.hash === '#' + this.getHashFromState()) return;
+      // if (window.location.hash === '#' + this.getHashFromState()) return;
 
-      const newState = this.getStateFromHash();
-      (newState.emitters as Emitter[]).forEach((e, i) => e.update(this.time, i));
-      (newState.attractors as Attractor[]).forEach((a, i) => a.update(this.time, i));
+      // const newState = this.getStateFromHash();
+      // (newState.emitters as Emitter[]).forEach((e, i) => e.update(this.time, i));
+      // (newState.attractors as Attractor[]).forEach((a, i) => a.update(this.time, i));
 
-      this.setState(newState)
+      // this.setState(newState)
     });
   }
 
