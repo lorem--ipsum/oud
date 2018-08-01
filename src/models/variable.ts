@@ -27,12 +27,12 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
   }
 
 
-  // toJS() {
-  //   return {
-  //     expression: this.expression,
-  //     currentValue: this.currentValue,
-  //   };
-  // }
+  equals(other: any) {
+    return other &&
+      other instanceof Variable &&
+      other.expression === this.expression
+      ;
+  }
 
   changeExpression(value: string) {
     const v = this.valueOf();

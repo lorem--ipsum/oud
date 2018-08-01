@@ -38,13 +38,13 @@ export class App extends React.Component<{}, AppState> {
     this.state = this.getStateFromHash() || this.getDefaultState();
 
     window.addEventListener('hashchange', () => {
-      // if (window.location.hash === '#' + this.getHashFromState()) return;
+      if (window.location.hash === '#' + this.getHashFromState()) return;
 
-      // const newState = this.getStateFromHash();
-      // (newState.emitters as Emitter[]).forEach((e, i) => e.update(this.time, i));
-      // (newState.attractors as Attractor[]).forEach((a, i) => a.update(this.time, i));
+      const newState = this.getStateFromHash();
+      (newState.emitters as Emitter[]).forEach((e, i) => e.update(this.time, i));
+      (newState.attractors as Attractor[]).forEach((a, i) => a.update(this.time, i));
 
-      // this.setState(newState)
+      this.setState(newState)
     });
   }
 
@@ -59,11 +59,14 @@ export class App extends React.Component<{}, AppState> {
       const emitters = json.emitters.map((e: any, i: number) => Emitter.fromJS(e).update(0, i));
       const attractors = json.attractors.map((a: any, i: number) => Attractor.fromJS(a).update(0, i));
 
+      const all = emitters.concat(attractors);
+      const selectedItems = json.selectedItems.map((name: string) => NamedArray.findByName(all, name));
+
       return {
         emitters,
         attractors,
         hideStuff: !!json.hideStuff,
-        selectedItems: [] as any
+        selectedItems
       };
 
     } catch (e) {
@@ -73,9 +76,10 @@ export class App extends React.Component<{}, AppState> {
   }
 
   getHashFromState() {
-    const { emitters, attractors, hideStuff, paused } = this.state;
+    const { selectedItems, emitters, attractors, hideStuff, paused } = this.state;
 
     const o = {
+      selectedItems: selectedItems.map(item => item.name),
       hideStuff,
       emitters: emitters.map(e => e.toJS()),
       attractors: attractors.map(a => a.toJS())
@@ -233,8 +237,8 @@ export class App extends React.Component<{}, AppState> {
       emissionRate: 't % 2 == 0',
       batchSize: '6',
       lifeSpan: '500',
-      hue: 'sin(t / 100)*255'
-    });
+      hue: 'sin(t / 100)*255',
+    }).update(this.time, emitters.length);
 
     this.setState({
       emitters: emitters.concat([newItem]),
@@ -251,8 +255,8 @@ export class App extends React.Component<{}, AppState> {
       name,
       label: name,
       mass: 'sin(t / 50) * 20',
-      x: '50', y: '250'
-    });
+      x: '250', y: '50',
+    }).update(this.time, attractors.length);
 
     this.setState({
       attractors: attractors.concat([newItem]),
@@ -364,7 +368,7 @@ export class App extends React.Component<{}, AppState> {
 
     this.setState({
       selectedItems: newSelectedItems
-    });
+    }, this.updateHash);
   }
 
   onAttractorClick = (attractor: Attractor, event: React.MouseEvent<any>) => {
