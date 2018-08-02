@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-
 import { CartesianVector } from '../utils/math-utils';
 import { Attractor } from './attractor';
 
@@ -22,8 +20,6 @@ export class Particle {
   public color: [number, number, number];
 
   public mass = 1;
-
-  public threeParticle: THREE.Mesh;
 
   public time = 0;
   private timeAtCreation = 0;

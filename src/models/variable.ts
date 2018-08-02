@@ -29,6 +29,10 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
     super(params);
   }
 
+  toJS() {
+    return this.expression as any;
+  }
+
   equals(other: any) {
     return other &&
       other instanceof Variable &&

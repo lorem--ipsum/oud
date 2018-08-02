@@ -66,6 +66,26 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
     return candidate instanceof Emitter;
   }
 
+  static unserialize(value: string) {
+    const bits = value.split('_');
+
+    return new Emitter({
+      name: bits[0],
+      label: bits[1],
+      x: Variable.fromJS(bits[2]),
+      y: Variable.fromJS(bits[3]),
+      angle: Variable.fromJS(bits[4]),
+      spread: Variable.fromJS(bits[5]),
+      velocity: Variable.fromJS(bits[6]),
+      batchSize: Variable.fromJS(bits[7]),
+      emissionRate: Variable.fromJS(bits[8]),
+      hue: Variable.fromJS(bits[9]),
+      saturation: Variable.fromJS(bits[10]),
+      lightness: Variable.fromJS(bits[11]),
+      lifeSpan: Variable.fromJS(bits[12])
+    });
+  }
+
   public name: string;
   private label: Variable;
   private x: Variable;
@@ -84,6 +104,25 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
 
   constructor(params: EmitterValue) {
     super(params);
+  }
+
+  serialize() {
+    return [
+      this.name,
+      this.getLabel(),
+
+      this.getX().expression,
+      this.getY().expression,
+      this.getAngle().expression,
+      this.getSpread().expression,
+      this.getVelocity().expression,
+      this.getBatchSize().expression,
+      this.getEmissionRate().expression,
+      this.getHue().expression,
+      this.getSaturation().expression,
+      this.getLightness().expression,
+      this.getLifeSpan().expression
+    ].join('_');
   }
 
   getName: () => string;

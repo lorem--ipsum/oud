@@ -42,6 +42,18 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
     return new Attractor(BaseImmutable.jsToValue(Attractor.PROPERTIES, params));
   }
 
+  static unserialize(value: string) {
+    const bits = value.split('_');
+
+    return new Attractor({
+      name: bits[0],
+      label: bits[1],
+      x: Variable.fromJS(bits[2]),
+      y: Variable.fromJS(bits[3]),
+      mass: Variable.fromJS(bits[4])
+    });
+  }
+
   public name: string;
   private label: string;
   private x: Variable;
@@ -59,6 +71,17 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
   public getX: () => Variable;
   public getY: () => Variable;
   public getMass: () => Variable;
+
+  serialize() {
+    return [
+      this.name,
+      this.getLabel(),
+
+      this.getX().expression,
+      this.getY().expression,
+      this.getMass().expression,
+    ].join('_');
+  }
 
   update(t: number, j: number) {
     return this.changeMany({

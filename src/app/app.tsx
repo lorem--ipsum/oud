@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as classNames from 'classnames';
 
 import { NamedArray } from 'immutable-class';
 import { IconButton } from '../icon-button/icon-button';
@@ -7,9 +8,10 @@ import { Detail } from '../detail/detail';
 import { AttractorRenderer } from '../attractor-renderer/attractor-renderer';
 import { EmitterRenderer } from '../emitter-renderer/emitter-renderer';
 
-import { Emitter, Attractor, Particle } from '../models/index';
+import { Emitter, Attractor, Particle, EXAMPLES, Example } from '../models/index';
 
 import './app.css';
+
 export interface AppState {
   emitters?: Emitter[];
   attractors?: Attractor[];
@@ -38,7 +40,7 @@ export class App extends React.Component<{}, AppState> {
     this.state = this.getStateFromHash() || this.getDefaultState();
 
     window.addEventListener('hashchange', () => {
-      if (window.location.hash === '#' + this.getHashFromState()) return;
+      if (window.location.hash === '#' + this.getHashFromState(this.state)) return;
 
       const newState = this.getStateFromHash();
       (newState.emitters as Emitter[]).forEach((e, i) => e.update(this.time, i));
@@ -54,10 +56,10 @@ export class App extends React.Component<{}, AppState> {
     if (!hash) return this.getDefaultState();
 
     try {
-      const json = JSON.parse(atob(hash.replace(/^#/, '')));
+      const json = JSON.parse(decodeURI(hash.replace(/^#/, '')));
 
-      const emitters = json.emitters.map((e: any, i: number) => Emitter.fromJS(e).update(0, i));
-      const attractors = json.attractors.map((a: any, i: number) => Attractor.fromJS(a).update(0, i));
+      const emitters = json.emitters.map((e: any, i: number) => Emitter.unserialize(e).update(0, i));
+      const attractors = json.attractors.map((a: any, i: number) => Attractor.unserialize(a).update(0, i));
 
       const all = emitters.concat(attractors);
       const selectedItems = json.selectedItems.map((name: string) => NamedArray.findByName(all, name));
@@ -75,21 +77,21 @@ export class App extends React.Component<{}, AppState> {
     }
   }
 
-  getHashFromState() {
-    const { selectedItems, emitters, attractors, hideStuff, paused } = this.state;
+  getHashFromState(state: AppState) {
+    const { selectedItems, emitters, attractors, hideStuff } = state;
 
     const o = {
       selectedItems: selectedItems.map(item => item.name),
       hideStuff,
-      emitters: emitters.map(e => e.toJS()),
-      attractors: attractors.map(a => a.toJS())
+      emitters: emitters.map(e => e.serialize()),
+      attractors: attractors.map(a => a.serialize())
     };
 
-    return btoa(JSON.stringify(o));
+    return encodeURI(JSON.stringify(o));
   }
 
   updateHash = () => {
-    location.hash = this.getHashFromState();
+    location.hash = this.getHashFromState(this.state);
   }
 
   getDefaultState() {
@@ -180,7 +182,7 @@ export class App extends React.Component<{}, AppState> {
       p.update(this.time, newAttractors);
       newParticles.push(p);
 
-      const color = `hsla(${p.color[0]}, ${p.color[1]}%, ${p.color[2]}%, 1)`;
+      const color = `hsl(${p.color[0]}, ${p.color[1]}%, ${p.color[2]}%)`;
       if (color !== lastColor) ctx.fillStyle = color;
 
       ctx.fillRect(p.px - 1, p.py - 1, 2, 2);
@@ -457,10 +459,36 @@ export class App extends React.Component<{}, AppState> {
     />;
   }
 
+  isExampleSelected(example: Example) {
+    const a = this.getHashFromState(this.state);
+    const b = this.getHashFromState(example.config);
+
+    return a === b;
+  }
+
+  loadExample = (example: Example) => {
+    this.resetTime();
+    window.location.hash = this.getHashFromState(example.config);
+  }
+
   public render() {
     const { hideStuff, paused, emitters, selectedItems, attractors } = this.state;
 
     return <div className="app">
+      { !hideStuff
+        ? <div className="examples">
+          {
+            EXAMPLES.map((example, i) => {
+              return <div
+                key={i}
+                className={classNames('example', {selected: this.isExampleSelected(example)})}
+                onClick={() => this.loadExample(example)}
+              >{i + 1}</div>;
+            })
+          }
+          </div>
+        : null
+      }
 
       { !hideStuff
         ? <div className="info" ref={r => this.info = r}/>
