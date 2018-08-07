@@ -1,16 +1,10 @@
 import { Emitter } from './emitter';
 import { Attractor } from './attractor';
-
-export interface Config {
-  emitters: Emitter[];
-  attractors: Attractor[];
-  selectedItems: (Emitter | Attractor)[];
-  hideStuff: boolean;
-}
+import { UniverseJS } from './universe';
 
 export interface Example {
   label: string;
-  config: Config;
+  config: UniverseJS;
   description?: string;
 }
 
@@ -19,18 +13,18 @@ export const EXAMPLES: Example[] = [
     label: 'Waves',
     config: {
       selectedItems: [],
-      hideStuff: false,
+      controlsHidden: false,
       attractors: [
-        Attractor.fromJS({
+        {
           name: "Attractor #0",
           label: "Attractor #0",
           x: "250",
           y: "250",
           mass: "sin(t / 50) * 20"
-        })
+        }
       ],
       emitters: [
-        Emitter.fromJS({
+        {
           name: "Emitter #0",
           label: "Emitter #0",
           x: "50",
@@ -44,8 +38,8 @@ export const EXAMPLES: Example[] = [
           hue: "sin(t / 100)*255",
           saturation: "90",
           lightness: "70"
-        }),
-        Emitter.fromJS({
+        },
+        {
           name: "Emitter #1",
           label: "Emitter #1",
           x: "450",
@@ -59,7 +53,7 @@ export const EXAMPLES: Example[] = [
           hue: "sin(t / 100)*255",
           saturation: "90",
           lightness: "70"
-        })
+        }
       ]
     }
   },
@@ -67,18 +61,18 @@ export const EXAMPLES: Example[] = [
     label: 'Flower',
     config: {
       selectedItems: [],
-      hideStuff: false,
+      controlsHidden: false,
       attractors: [
-        Attractor.fromJS({
+        {
           name: "Attractor #0",
           label: "Attractor #0",
           x: "250",
           y: "250",
           mass: "sin(t / 50) * 20"
-        })
+        }
       ],
       emitters: [
-        Emitter.fromJS({
+        {
           name: "Emitter #0",
           label: "Emitter #0",
           x: "cos(t/100 + j*pi/2)*200 + 250",
@@ -92,8 +86,8 @@ export const EXAMPLES: Example[] = [
           hue: "sin(t / 100)*255",
           saturation: "70",
           lightness: "70"
-        }),
-        Emitter.fromJS({
+        },
+        {
           name: "Emitter #2",
           label: "Emitter #2",
           x: "cos(t/100 + j*pi/2)*200 + 250",
@@ -107,8 +101,8 @@ export const EXAMPLES: Example[] = [
           hue: "sin(t / 100)*255",
           saturation: "70",
           lightness: "70"
-        }),
-        Emitter.fromJS({
+        },
+        {
           name: "Emitter #1",
           label: "Emitter #1",
           x: "cos(t/100 + j*pi/2)*200 + 250",
@@ -122,8 +116,8 @@ export const EXAMPLES: Example[] = [
           hue: "sin(t / 100)*255",
           saturation: "70",
           lightness: "70"
-        }),
-        Emitter.fromJS({
+        },
+        {
           name: "Emitter #3",
           label: "Emitter #3",
           x: "cos(t/100 + j*pi/2)*200 + 250",
@@ -137,7 +131,7 @@ export const EXAMPLES: Example[] = [
           hue: "sin(t / 100)*255",
           saturation: "70",
           lightness: "70"
-        })
+        }
       ]
     }
   },
@@ -145,9 +139,9 @@ export const EXAMPLES: Example[] = [
     label: 'Spiral',
     config: {
       selectedItems: [],
-      hideStuff: false,
+      controlsHidden: false,
       emitters: [
-        Emitter.fromJS({
+        {
           name: "Emitter #2",
           label: "Emitter #2",
           x: "cos(t/100 + j*pi)*60 + 250",
@@ -161,8 +155,8 @@ export const EXAMPLES: Example[] = [
           hue: "sin(t / 100)*255",
           saturation: "70",
           lightness: "70"
-        }),
-        Emitter.fromJS({
+        },
+        {
           name: "Emitter #3",
           label: "Emitter #3",
           x: "cos(t/100 + j*pi)*60 + 250",
@@ -176,7 +170,7 @@ export const EXAMPLES: Example[] = [
           hue: "sin(t / 100)*255",
           saturation: "70",
           lightness: "70"
-        })
+        }
       ],
       attractors: []
     }

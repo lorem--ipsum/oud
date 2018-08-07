@@ -46,18 +46,38 @@ export class Particle {
     this.lifeSpan = params.lifeSpan || LIFE_SPAN;
   }
 
+  private _memory: Record<number, number[]> = [];
+
   update(time: number, attractors: Attractor[] = []) {
-    this.px += this.vx;
-    this.py += this.vy;
+    if (time < this.timeAtCreation) return this;
+    if (time === this.time) return this;
 
-    this.vx += this.ax;
-    this.vy += this.ay;
+    const memory = this._memory[time];
+    if (memory) {
+      this.px = memory[0];
+      this.py = memory[1];
 
-    let i = attractors.length;
-    while (i--) {
-      const f = attractors[i].getAttractionForce(this);
-      this.ax += f.x;
-      this.ay += f.y;
+      this.vx = memory[2];
+      this.vy = memory[3];
+
+      this.ax = memory[4];
+      this.ay = memory[5];
+
+    } else {
+      this.px += this.vx;
+      this.py += this.vy;
+
+      this.vx += this.ax;
+      this.vy += this.ay;
+
+      let i = attractors.length;
+      while (i--) {
+        const f = attractors[i].getAttractionForce(this);
+        this.ax += f.x;
+        this.ay += f.y;
+      }
+
+      this._memory[time] = [this.px, this.py, this.vx, this.vy, this.ax, this.ay];
     }
 
     this.time = time;

@@ -83,13 +83,15 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
     ].join('_');
   }
 
-  update(t: number, j: number) {
-    return this.changeMany({
-      mass: this.getMass().update({t, j}),
-      x: this.getX().update({t, j}),
-      y: this.getY().update({t, j}),
-      time: t
-    });
+  update(t: number, j: number, n: number) {
+    const v = this.valueOf();
+
+    v.mass = this.getMass().update({t, j, n});
+    v.x = this.getX().update({t, j, n});
+    v.y = this.getY().update({t, j, n});
+    v.time = t;
+
+    return new Attractor(v);
   }
 
   getAttractionForce(p: Particle): CartesianVector {

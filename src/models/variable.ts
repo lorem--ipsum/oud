@@ -43,8 +43,6 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
   changeExpression(newExpression: string) {
     const v = this.valueOf();
 
-    // math.parse(newExpression).eval({t: 0, j: 0});
-
     v.expression = newExpression;
     if (newExpression !== this.expression) v.parsedExpression = null;
 

@@ -100,7 +100,7 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
   private lightness: Variable;
   private lifeSpan: Variable;
 
-  private time: number;
+  public time: number;
 
   constructor(params: EmitterValue) {
     super(params);
@@ -180,21 +180,22 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
     });
   }
 
-  update(t: number, j: number) {
+  update(t: number, j: number, n: number) {
     const v = this.valueOf();
 
-    v.x = this.getX().update({t, j});
-    v.y = this.getY().update({t, j});
-    v.angle = this.getAngle().update({t, j});
-    v.spread = this.getSpread().update({t, j});
-    v.velocity = this.getVelocity().update({t, j});
-    v.batchSize = this.getBatchSize().update({t, j});
-    v.emissionRate = this.getEmissionRate().update({t, j});
-    v.hue = this.getHue().update({t, j});
-    v.saturation = this.getSaturation().update({t, j});
-    v.lightness = this.getLightness().update({t, j});
-    v.lifeSpan = this.getLifeSpan().update({t, j});
-    v.time = t;
+    v.x = this.getX().update({t, j, n});
+    v.y = this.getY().update({t, j, n});
+    v.angle = this.getAngle().update({t, j, n});
+    v.spread = this.getSpread().update({t, j, n});
+    v.velocity = this.getVelocity().update({t, j, n});
+    v.batchSize = this.getBatchSize().update({t, j, n});
+    v.emissionRate = this.getEmissionRate().update({t, j, n});
+    v.hue = this.getHue().update({t, j, n});
+    v.saturation = this.getSaturation().update({t, j, n});
+    v.lightness = this.getLightness().update({t, j, n});
+    v.lifeSpan = this.getLifeSpan().update({t, j, n});
+
+    v.time = t >= this.time || isNaN(this.time) ? t : this.time;
 
     return new Emitter(v);
   }

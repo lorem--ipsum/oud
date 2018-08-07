@@ -8,18 +8,18 @@ import { Detail } from '../detail/detail';
 import { AttractorRenderer } from '../attractor-renderer/attractor-renderer';
 import { EmitterRenderer } from '../emitter-renderer/emitter-renderer';
 
-import { Emitter, Attractor, Particle, EXAMPLES, Example } from '../models/index';
+import { Emitter, Attractor, Particle, EXAMPLES, Example, Universe } from '../models/index';
 
 import './app.css';
 
 export interface AppState {
-  emitters?: Emitter[];
-  attractors?: Attractor[];
+  universe?: Universe;
 
-  paused?: boolean;
   hideStuff?: boolean;
 
-  selectedItems?: (Emitter | Attractor)[];
+  paused?: boolean;
+
+  time?: number;
 }
 
 export class App extends React.Component<{}, AppState> {
@@ -30,109 +30,33 @@ export class App extends React.Component<{}, AppState> {
   private before = Date.now();
   private leaps = 1;
   private fps: number[] = [];
-  private time = 0;
+  private timeAtPause = 0;
 
   private particles: Particle[] = [];
 
   constructor(props: {}, context: any) {
     super(props, context);
 
-    this.state = this.getStateFromHash() || this.getDefaultState();
+    this.state = {
+      universe: Universe.fromHash(location.hash),
+      time: 0
+    }
 
     window.addEventListener('hashchange', () => {
-      if (window.location.hash === '#' + this.getHashFromState(this.state)) return;
+      const { time, universe } = this.state;
 
-      const newState = this.getStateFromHash();
-      (newState.emitters as Emitter[]).forEach((e, i) => e.update(this.time, i));
-      (newState.attractors as Attractor[]).forEach((a, i) => a.update(this.time, i));
+      if (window.location.hash === universe.toHash()) return;
 
-      this.setState(newState)
+      const newUniverse = Universe.fromHash(location.hash).update(time);
+
+      this.setState({
+        universe: newUniverse
+      });
     });
   }
 
-  getStateFromHash() {
-    const hash = location.hash;
-
-    if (!hash) return this.getDefaultState();
-
-    try {
-      const json = JSON.parse(decodeURI(hash.replace(/^#/, '')));
-
-      const emitters = json.emitters.map((e: any, i: number) => Emitter.unserialize(e).update(0, i));
-      const attractors = json.attractors.map((a: any, i: number) => Attractor.unserialize(a).update(0, i));
-
-      const all = emitters.concat(attractors);
-      const selectedItems = json.selectedItems.map((name: string) => NamedArray.findByName(all, name));
-
-      return {
-        emitters,
-        attractors,
-        hideStuff: !!json.hideStuff,
-        selectedItems
-      };
-
-    } catch (e) {
-      console.log(e)
-      return null;
-    }
-  }
-
-  getHashFromState(state: AppState) {
-    const { selectedItems, emitters, attractors, hideStuff } = state;
-
-    const o = {
-      selectedItems: selectedItems.map(item => item.name),
-      hideStuff,
-      emitters: emitters.map(e => e.serialize()),
-      attractors: attractors.map(a => a.serialize())
-    };
-
-    return encodeURI(JSON.stringify(o));
-  }
-
   updateHash = () => {
-    location.hash = this.getHashFromState(this.state);
-  }
-
-  getDefaultState() {
-    return {
-      selectedItems: [] as (Attractor | Emitter)[],
-      paused: false,
-      hideStuff: false,
-      emitters: [
-        Emitter.fromJS({
-          name: 'Emitter #0',
-          label: 'Emitter #0',
-          x: '50', y: '250',
-          spread: 'pi / 4',
-          angle: '0',
-          emissionRate: 't % 20 == 0',
-          batchSize: '1',
-          lifeSpan: '500',
-          hue: 'sin(t / 100)*255'
-        }).update(0, 0),
-        Emitter.fromJS({
-          name: 'Emitter #1',
-          label: 'Emitter #1',
-          x: '450', y: '250',
-          spread: 'pi / 4',
-          angle: 'pi',
-          emissionRate: 't % 20 == 0',
-          batchSize: '1',
-          lifeSpan: '500',
-          hue: 'sin(t / 100)*255'
-        }).update(0, 1)
-      ] as any,
-      attractors: [
-        Attractor.fromJS({
-          name: 'Attractor #0',
-          label: 'Attractor #0',
-          mass: 'sin(t / 50) * 20',
-          x: '250', y: '250',
-          time: 0
-        }).update(0, 0)
-      ]
-    };
+    location.hash = this.state.universe.toHash();
   }
 
   componentDidMount() {
@@ -140,21 +64,27 @@ export class App extends React.Component<{}, AppState> {
   }
 
   loop = () => {
-    const { paused, attractors, emitters } = this.state;
+    const { paused, time } = this.state;
 
     if (!paused) {
-      let newState: AppState = {};
-
-      if (this.time % this.leaps === 0) {
-        this.update(attractors, emitters);
+      if (time % this.leaps === 0) {
+        this.update(time + 1);
       }
 
-      this.time++;
       requestAnimationFrame(this.loop);
     }
   }
 
-  update(attractors: Attractor[], emitters: Emitter[]) {
+  changeTime(newTime: number) {
+    this.update(newTime);
+  }
+
+  update(time: number) {
+    const { paused, universe } = this.state;
+
+    const newUniverse = universe.update(time);
+    const { emitters, attractors } = newUniverse;
+
     // FPS
     this.now = Date.now();
     if (this.fps.push(1000 / (this.now - this.before)) === 100) this.fps.shift();
@@ -162,24 +92,23 @@ export class App extends React.Component<{}, AppState> {
 
     this.clear();
 
-    const newAttractors = attractors.map((a, index) => a.update(this.time, index));
-    const newEmitters = emitters.map((e, index) => e.update(this.time, index));
-
     let newParticles: Particle[] = [];
-    newEmitters.forEach(e => e.emit(newParticles));
+    emitters.forEach(e => {
+      if (time >= e.time) e.emit(newParticles)
+    });
 
-    const ctx = this.canvas.getContext('2d', { alpha: false });
+    const ctx = this.canvas.getContext('2d');
 
     let i = this.particles.length;
     let lastColor = '';
     while (i--) {
       const p = this.particles[i];
 
-      if (p.isDead() || p.isLost()) {
+      if (!paused && p.isDead() || p.isLost()) {
         continue;
       }
 
-      p.update(this.time, newAttractors);
+      p.update(time, attractors);
       newParticles.push(p);
 
       const color = `hsl(${p.color[0]}, ${p.color[1]}%, ${p.color[2]}%)`;
@@ -189,12 +118,11 @@ export class App extends React.Component<{}, AppState> {
     }
 
     this.setState({
-      attractors: newAttractors,
-      emitters: newEmitters
+      time,
+      universe: newUniverse
     });
 
     this.particles = newParticles;
-    this.updateInfo();
   }
 
   private clear() {
@@ -204,275 +132,155 @@ export class App extends React.Component<{}, AppState> {
     this.canvas.width = 500;
   }
 
-  updateInfo() {
-    if (!this.info) return;
-
-    const fps = Math.round(this.fps.reduce(((total, a) => total + a), 0) / this.fps.length);
-
-    this.info.innerHTML = `${this.particles.length} particles, frame #${this.time}, ${fps}fps`;
-  }
-
-
   playPause = () => {
-    const { paused } = this.state;
+    const { paused, time } = this.state;
+
+    const isNowPaused = !paused;
 
     this.setState({
-      paused: !paused
+      paused: isNowPaused
     });
 
-    if (paused) requestAnimationFrame(this.loop);
-  }
-
-  getUniqueName(array: (Emitter | Attractor)[], root: string): string {
-    let n = 0;
-    let name = root;
-
-    while (NamedArray.containsByName(array, name + ' #' + n)) n++;
-
-    return name + ' #' + n;
+    if (isNowPaused) {
+      this.timeAtPause = time;
+    } else {
+      requestAnimationFrame(this.loop);
+    }
   }
 
   addEmitter = () => {
-    const { emitters } = this.state;
-
-    const name = this.getUniqueName(emitters, 'Emitter');
-    const newItem = Emitter.fromJS({
-      name,
-      label: name,
-      x: '50', y: '50',
-      spread: 'pi / 4',
-      angle: '0',
-      emissionRate: 't % 2 == 0',
-      batchSize: '6',
-      lifeSpan: '500',
-      hue: 'sin(t / 100)*255',
-    }).update(this.time, emitters.length);
+    const { universe, time } = this.state;
 
     this.setState({
-      emitters: emitters.concat([newItem]),
-      selectedItems: [newItem]
+      universe: universe.addEmitter(time),
     }, this.updateHash);
   }
 
   addAttractor = () => {
-    const { attractors } = this.state;
-
-    const name = this.getUniqueName(attractors, 'Attractor');
-
-    const newItem = Attractor.fromJS({
-      name,
-      label: name,
-      mass: 'sin(t / 50) * 20',
-      x: '250', y: '50',
-    }).update(this.time, attractors.length);
+    const { universe, time } = this.state;
 
     this.setState({
-      attractors: attractors.concat([newItem]),
-      selectedItems: [newItem]
+      universe: universe.addAttractor(time),
     }, this.updateHash);
   }
 
   resetTime = () => {
     this.particles = [];
-    this.time = 0;
-
-    const { emitters, attractors } = this.state;
+    this.clear();
 
     this.setState({
-      emitters: emitters.map((e, i) => e.update(0, i)),
-      attractors: attractors.map((a, i) => a.update(0, i))
+      time: 0,
+      universe: this.state.universe.update(0)
     });
-
-    this.clear();
-    this.updateInfo();
   }
 
   reset = () => {
-    this.resetTime();
-    this.setState(this.getDefaultState(), this.updateHash);
+    this.particles = [];
+    this.clear();
+
+    this.setState({
+      universe: Universe.DEFAULT,
+      time: 0
+    }, this.updateHash);
   }
 
   nextSelectedItem = () => {
-    const { attractors, emitters, selectedItems } = this.state;
-
-    const a = Emitter.isEmitter(selectedItems[0]) ? emitters : attractors;
-    const i = NamedArray.findIndexByName(a as any, selectedItems[0].name);
-
     this.setState({
-      selectedItems: [a[i === a.length - 1 ? 0 : i + 1]]
+      universe: this.state.universe.selectNext()
     });
   }
 
   previousSelectedItem = () => {
-    const { attractors, emitters, selectedItems } = this.state;
-
-    const a = Emitter.isEmitter(selectedItems[0]) ? emitters : attractors;
-    const i = NamedArray.findIndexByName(a as any, selectedItems[0].name);
-
     this.setState({
-      selectedItems: [a[i === 0 ? a.length - 1 : i - 1]]
+      universe: this.state.universe.selectPrevious()
     });
   }
 
   onItemsChange = (items: (Attractor | Emitter)[]) => {
-    const { emitters, attractors } = this.state;
-
-    if (Emitter.isEmitter(items[0])) {
-      const newEmitters = NamedArray.overridesByName(emitters, items) as Emitter[];
-
-      this.setState({
-        emitters: newEmitters.map((e, i) => e.update(this.time, i)),
-        selectedItems: items
-      }, this.updateHash);
-    } else {
-      const newAttractors = NamedArray.overridesByName(attractors, items) as Attractor[];
-
-      this.setState({
-        attractors: newAttractors.map((a, i) => a.update(this.time, i)),
-        selectedItems: items
-      }, this.updateHash);
-    }
-  }
-
-  getSelectedItemsFields() {
-    const { selectedItems } = this.state;
-
-    if (!selectedItems || !selectedItems.length) return [];
-
-    if (Emitter.isEmitter(selectedItems[0])) {
-      return [
-        'x', 'y',
-        'angle', 'spread',
-        'velocity', 'batchSize',
-        'emissionRate', 'hue', 'saturation', 'lightness'
-      ];
-    } else {
-      return ['x', 'y', 'mass'];
-    }
-  }
-
-  handleClick(items: (Attractor | Emitter)[] , item: Attractor | Emitter, isMulti = false) {
-    const { selectedItems } = this.state;
-
-    let newSelectedItems: (Attractor | Emitter)[] = [];
-
-    if (!isMulti) {
-      if (NamedArray.containsByName(selectedItems, item.name)) {
-        newSelectedItems = selectedItems.length > 1 ? [item] : [];
-      } else {
-        newSelectedItems = [item];
-      }
-    } else {
-      if (NamedArray.containsByName(selectedItems, item.name)) {
-        newSelectedItems = NamedArray.deleteByName(selectedItems, item.name);
-      } else {
-        newSelectedItems = selectedItems.concat([item]);
-
-        if (!newSelectedItems.every(Emitter.isEmitter) && !newSelectedItems.every(Attractor.isAttractor)) {
-          newSelectedItems = [item];
-        }
-      }
-    }
+    const { universe, time } = this.state;
 
     this.setState({
-      selectedItems: newSelectedItems
-    }, this.updateHash);
+      universe: universe.changeItems(items).update(time)
+    });
   }
 
   onAttractorClick = (attractor: Attractor, event: React.MouseEvent<any>) => {
-    this.handleClick(this.state.attractors, attractor, event.shiftKey);
+    const { universe } = this.state;
+
+    this.setState({
+      universe: universe.select(attractor, event.shiftKey)
+    });
   }
 
   onEmitterClick = (emitter: Emitter, event: React.MouseEvent<any>) => {
-    this.handleClick(this.state.emitters, emitter, event.shiftKey);
+    const { universe } = this.state;
+
+    this.setState({
+      universe: universe.select(emitter, event.shiftKey)
+    });
   }
 
   toggleHideStuff = () => {
-    const { hideStuff } = this.state;
+    const { universe } = this.state;
 
-    this.setState({hideStuff: !hideStuff}, this.updateHash);
+    this.setState({
+      universe: universe.toggleControls()
+    });
   }
 
   removeSelectedItems = () => {
-    const { selectedItems, emitters, attractors } = this.state;
+    const { universe } = this.state;
 
-    if (Emitter.isEmitter(selectedItems[0])) {
-      let newEmitters = emitters;
-
-      selectedItems.forEach(e => newEmitters = NamedArray.deleteByName(newEmitters, e.name));
-
-      this.setState({
-        selectedItems: [],
-        emitters: newEmitters
-      }, this.updateHash);
-    } else {
-      let newAttractors = attractors;
-
-      selectedItems.forEach(a => newAttractors = NamedArray.deleteByName(newAttractors, a.name));
-
-      this.setState({
-        selectedItems: [],
-        attractors: newAttractors
-      }, this.updateHash);
-    }
+    this.setState({
+      universe: universe.deleteSelectedItems()
+    });
   }
 
   duplicateSelectedItems = () => {
-    const { selectedItems, emitters, attractors } = this.state;
+    const { universe } = this.state;
 
-    if (Emitter.isEmitter(selectedItems[0])) {
-      const newItems = selectedItems.map(e => {
-        const newName = this.getUniqueName(emitters, 'Emitter');
-        const n = e.changeMany({
-          name: newName,
-          label: newName
-        });
-
-        return n;
-      });
-
-      this.setState({
-        emitters: emitters.concat(newItems as Emitter[])
-      });
-    }
+    this.setState({
+      universe: universe.duplicateSelectedItems()
+    });
   }
 
   renderEmitter = (item: Emitter) => {
-    const { selectedItems } = this.state;
+    const { universe } = this.state;
 
     return <EmitterRenderer
       key={item.name}
       emitter={item}
       onClick={e => this.onEmitterClick(item, e)}
-      selected={NamedArray.containsByName(selectedItems, item.name)}
+      selected={universe.selectedItems.indexOf(item.name) > -1}
     />;
   }
 
   renderAttractor = (item: Attractor) => {
-    const { selectedItems } = this.state;
+    const { universe } = this.state;
 
     return <AttractorRenderer
       key={item.name}
       attractor={item}
       onClick={e => this.onAttractorClick(item, e)}
-      selected={NamedArray.containsByName(selectedItems, item.name)}
+      selected={universe.selectedItems.indexOf(item.name) > -1}
     />;
   }
 
   isExampleSelected(example: Example) {
-    const a = this.getHashFromState(this.state);
-    const b = this.getHashFromState(example.config);
+    const { universe } = this.state;
 
-    return a === b;
+    return universe.equals(Universe.fromJS(example.config));
   }
 
   loadExample = (example: Example) => {
     this.resetTime();
-    window.location.hash = this.getHashFromState(example.config);
+    window.location.hash = Universe.fromJS(example.config).toHash();
   }
 
   public render() {
-    const { hideStuff, paused, emitters, selectedItems, attractors } = this.state;
+    const { hideStuff, paused, universe, time } = this.state;
+
+    const fps = Math.round(this.fps.reduce(((total, a) => total + a), 0) / this.fps.length);
 
     return <div className="app">
       { !hideStuff
@@ -491,7 +299,7 @@ export class App extends React.Component<{}, AppState> {
       }
 
       { !hideStuff
-        ? <div className="info" ref={r => this.info = r}/>
+        ? <div className="info">{`${this.particles.length} particles, frame #${time}, ${fps}fps`}</div>
         : null
       }
 
@@ -499,31 +307,37 @@ export class App extends React.Component<{}, AppState> {
         <canvas ref={r => this.canvas = r} width={500} height={500}/>
         { !hideStuff
             ? <svg className="overlay" width="500" height="500">
-                <g className="event-target" onClick={() => this.setState({selectedItems: []})}>
+                <g className="event-target" onClick={() => this.setState({universe: universe.changeSelectedItems([])})}>
                   <rect x="0" width="500" y="0" height="500"/>
                 </g>
-                { attractors.map(this.renderAttractor) }
-                { emitters.map(this.renderEmitter) }
+                { universe.attractors.map(this.renderAttractor) }
+                { universe.emitters.map(this.renderEmitter) }
               </svg>
             : null
         }
       </div>
 
       {
-        !hideStuff && selectedItems && selectedItems.length
+        !hideStuff && universe.selectedItems && universe.selectedItems.length
           ? <Detail
-              fields={this.getSelectedItemsFields()}
-              items={selectedItems}
+              fields={universe.getSelectedItemsFields()}
+              items={universe.getActualSelectedItems()}
               onChange={this.onItemsChange}
               next={this.nextSelectedItem}
               previous={this.previousSelectedItem}
 
               remove={this.removeSelectedItems}
-              duplicate={selectedItems.length === 1 ? this.duplicateSelectedItems : null}
+              duplicate={universe.selectedItems.length === 1 ? this.duplicateSelectedItems : null}
             />
           : null
       }
 
+      { paused
+        ? <div className="controls">
+          <input type="range" min={0} max={this.timeAtPause * 2} onChange={e => this.changeTime(+e.target.value)} value={time}/>
+        </div>
+        : null
+      }
       <div className="controls">
         <IconButton label="Show/hide info" icon={!hideStuff ? 'visibility_off' : 'visibility'} type="primary" onClick={this.toggleHideStuff}/>
         { !hideStuff ? <IconButton label="Play/pause" onClick={this.playPause} type="primary" icon={paused ? 'play_arrow' : 'pause'}/> : null }
