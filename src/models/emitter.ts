@@ -49,11 +49,11 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
     { name: 'velocity', defaultValue: Variable.fromJS('20'), immutableClass: Variable },
     { name: 'batchSize', defaultValue: Variable.fromJS('10'), immutableClass: Variable },
     { name: 'emissionRate', defaultValue: true, immutableClass: Variable },
-    { name: 'lifeSpan', defaultValue: Variable.fromJS('500'), immutableClass: Variable },
+    { name: 'lifeSpan', defaultValue: Variable.fromJS('2000'), immutableClass: Variable },
 
     { name: 'hue', defaultValue: Variable.fromJS('255'), immutableClass: Variable },
-    { name: 'saturation', defaultValue: Variable.fromJS('90'), immutableClass: Variable },
-    { name: 'lightness', defaultValue: Variable.fromJS('70'), immutableClass: Variable },
+    { name: 'saturation', defaultValue: Variable.fromJS('.9'), immutableClass: Variable },
+    { name: 'lightness', defaultValue: Variable.fromJS('.7'), immutableClass: Variable },
     { name: 'time', defaultValue: 0 }
 
   ];
@@ -160,9 +160,9 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
 
   getCurrentColor() {
     const color = [
-      Math.floor(this.getHue().getValue()),
-      Math.floor(this.getSaturation().getValue()),
-      Math.floor(this.getLightness().getValue())
+      Math.floor(this.getHue().getValue() * 255),
+      Math.floor(this.getSaturation().getValue() * 100),
+      Math.floor(this.getLightness().getValue() * 100)
     ];
 
     return `hsl(${color[0]}, ${color[1]}%, ${color[2]}%)`;

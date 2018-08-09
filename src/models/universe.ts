@@ -113,10 +113,10 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
       x: '50', y: '50',
       spread: 'pi / 4',
       angle: '0',
-      emissionRate: 't % 2 == 0',
+      emissionRate: 'true',
       batchSize: '6',
       lifeSpan: '500',
-      hue: 'sin(t / 100)*255',
+      hue: 'abs(sin(t / 50)) + 1',
     }).update(time, emitters.length, emitters.length + 1);
 
     return this.changeMany({
@@ -303,7 +303,7 @@ Universe.DEFAULT = new Universe({
       emissionRate: 't % 20 == 0',
       batchSize: '1',
       lifeSpan: '500',
-      hue: 'sin(t / 100)*255'
+      hue: 'abs(sin(t / 50)) + 1'
     }).update(0, 0, 2),
     Emitter.fromJS({
       name: 'Emitter #1',
@@ -314,7 +314,7 @@ Universe.DEFAULT = new Universe({
       emissionRate: 't % 20 == 0',
       batchSize: '1',
       lifeSpan: '500',
-      hue: 'sin(t / 100)*255'
+      hue: 'abs(sin(t / 50)) + 1'
     }).update(0, 1, 2)
   ] as any,
   attractors: [

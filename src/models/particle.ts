@@ -2,7 +2,6 @@ import { CartesianVector } from '../utils/math-utils';
 import { Attractor } from './attractor';
 
 const MEMORY_SPAN = 400;
-const LIFE_SPAN = 200;
 
 export class Particle {
 
@@ -44,11 +43,8 @@ export class Particle {
     }
 
     this.color = params.color || [172, 207, 165];
-    this.lifeSpan = params.lifeSpan || LIFE_SPAN;
+    this.lifeSpan = params.lifeSpan;
   }
-
-  private _memory: Record<number, number[]> = {};
-  private oldestMemory: number;
 
   update(time: number, attractors: Attractor[] = []) {
     if (time < this.timeAtCreation) return this;

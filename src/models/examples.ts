@@ -35,9 +35,9 @@ export const EXAMPLES: Example[] = [
           batchSize: "6",
           emissionRate: "t % 1 == 0",
           lifeSpan: "500",
-          hue: "sin(t / 100)*255",
-          saturation: "90",
-          lightness: "70"
+          hue: "sin(t / 500) + 1",
+          saturation: ".7",
+          lightness: ".7"
         },
         {
           name: "Emitter #1",
@@ -50,9 +50,9 @@ export const EXAMPLES: Example[] = [
           batchSize: "6",
           emissionRate: "t % 1 == 0",
           lifeSpan: "500",
-          hue: "sin(t / 100)*255",
-          saturation: "90",
-          lightness: "70"
+          hue: "sin(t / 500) + 1",
+          saturation: ".7",
+          lightness: ".7"
         }
       ]
     }
@@ -83,9 +83,9 @@ export const EXAMPLES: Example[] = [
           batchSize: "6",
           emissionRate: "true",
           lifeSpan: "500",
-          hue: "sin(t / 100)*255",
-          saturation: "70",
-          lightness: "70"
+          hue: "sin(t / 500) + 1",
+          saturation: ".7",
+          lightness: ".7"
         },
         {
           name: "Emitter #2",
@@ -98,9 +98,9 @@ export const EXAMPLES: Example[] = [
           batchSize: "6",
           emissionRate: "true",
           lifeSpan: "500",
-          hue: "sin(t / 100)*255",
-          saturation: "70",
-          lightness: "70"
+          hue: "sin(t / 500) + 1",
+          saturation: ".7",
+          lightness: ".7"
         },
         {
           name: "Emitter #1",
@@ -113,9 +113,9 @@ export const EXAMPLES: Example[] = [
           batchSize: "6",
           emissionRate: "true",
           lifeSpan: "500",
-          hue: "sin(t / 100)*255",
-          saturation: "70",
-          lightness: "70"
+          hue: "sin(t / 500) + 1",
+          saturation: ".7",
+          lightness: ".7"
         },
         {
           name: "Emitter #3",
@@ -128,9 +128,9 @@ export const EXAMPLES: Example[] = [
           batchSize: "6",
           emissionRate: "true",
           lifeSpan: "500",
-          hue: "sin(t / 100)*255",
-          saturation: "70",
-          lightness: "70"
+          hue: "sin(t / 500) + 1",
+          saturation: ".7",
+          lightness: ".7"
         }
       ]
     }
@@ -152,9 +152,9 @@ export const EXAMPLES: Example[] = [
           batchSize: "6",
           emissionRate: "t%2 == true",
           lifeSpan: "500",
-          hue: "sin(t / 100)*255",
-          saturation: "70",
-          lightness: "70"
+          hue: "sin(t / 500) + 1",
+          saturation: ".7",
+          lightness: ".7"
         },
         {
           name: "Emitter #3",
@@ -167,9 +167,9 @@ export const EXAMPLES: Example[] = [
           batchSize: "6",
           emissionRate: "t%2 == true",
           lifeSpan: "500",
-          hue: "sin(t / 100)*255",
-          saturation: "70",
-          lightness: "70"
+          hue: "sin(t / 500) + 1",
+          saturation: ".7",
+          lightness: ".7"
         }
       ],
       attractors: []

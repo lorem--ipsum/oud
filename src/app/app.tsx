@@ -10,6 +10,8 @@ import { EmitterRenderer } from '../emitter-renderer/emitter-renderer';
 
 import { Emitter, Attractor, Particle, EXAMPLES, Example, Universe } from '../models/index';
 
+import * as drawer from './drawer';
+
 import './app.css';
 
 export interface AppState {
@@ -38,7 +40,7 @@ export class App extends React.Component<{}, AppState> {
     this.state = {
       universe: Universe.fromHash(location.hash),
       time: 0
-    }
+    };
 
     window.addEventListener('hashchange', () => {
       const { time, universe } = this.state;
@@ -58,40 +60,18 @@ export class App extends React.Component<{}, AppState> {
   }
 
   componentDidMount() {
-    requestAnimationFrame(this.loop);
+    this.resetDrawer();
   }
 
-  loop = () => {
-    const { paused, time } = this.state;
+  resetDrawer() {
+    const { paused } = this.state;
 
-    if (!paused) {
-      if (time % this.leaps === 0) {
-        this.update(time + 1);
-      }
-
-      requestAnimationFrame(this.loop);
-    }
+    drawer.init(this.canvas, () => {
+      paused ? drawer.clear() : drawer.start(this.update);
+    });
   }
 
-  changeTime(newTime: number) {
-    let { time } = this.state;
-
-    if (time < newTime) {
-      while (time < newTime) {
-        time++;
-        this.update(time, true);
-      }
-    } else {
-      while (time > newTime) {
-        time--;
-        this.update(time, true);
-      }
-    }
-
-    this.update(time);
-  }
-
-  update(time: number, noDraw = false) {
+  update = (time: number) => {
     const { paused, universe } = this.state;
 
     const newUniverse = universe.update(time);
@@ -102,16 +82,10 @@ export class App extends React.Component<{}, AppState> {
     if (this.fps.push(1000 / (this.now - this.before)) === 100) this.fps.shift();
     this.before = this.now;
 
-    this.clear();
-
     let newParticles: Particle[] = [];
-    if (this.particles.length < 20000) {
-      emitters.forEach(e => {
-        if (time >= e.time) e.emit(newParticles)
-      });
-    }
-
-    const ctx = this.canvas.getContext('2d');
+    emitters.forEach(e => {
+      if (time >= e.time) e.emit(newParticles)
+    });
 
     let i = this.particles.length;
     let lastColor = '';
@@ -124,13 +98,6 @@ export class App extends React.Component<{}, AppState> {
 
       p.update(time, attractors);
       newParticles.push(p);
-
-      if (noDraw) continue;
-
-      const color = `hsl(${p.color[0]}, ${p.color[1]}%, ${p.color[2]}%)`;
-      if (color !== lastColor) ctx.fillStyle = color;
-
-      ctx.fillRect(p.px - 1, p.py - 1, 2, 2);
     }
 
     this.setState({
@@ -139,13 +106,7 @@ export class App extends React.Component<{}, AppState> {
     });
 
     this.particles = newParticles;
-  }
-
-  private clear() {
-    if (!this.canvas) return;
-
-    this.canvas.height = 500;
-    this.canvas.width = 500;
+    return newParticles;
   }
 
   playPause = () => {
@@ -158,9 +119,10 @@ export class App extends React.Component<{}, AppState> {
     });
 
     if (isNowPaused) {
+      drawer.stop();
       this.timeAtPause = time;
     } else {
-      requestAnimationFrame(this.loop);
+      drawer.start(this.update);
     }
   }
 
@@ -182,23 +144,27 @@ export class App extends React.Component<{}, AppState> {
 
   resetTime = () => {
     this.particles = [];
-    this.clear();
+    drawer.clear();
+    drawer.stop();
 
     this.setState({
       time: 0,
       universe: this.state.universe.resetTime()
-    });
+    }, () => this.resetDrawer());
   }
 
   reset = () => {
     this.particles = [];
-    this.clear();
+    drawer.clear();
+    drawer.stop();
 
     this.setState({
-      universe: Universe.DEFAULT,
-      time: 0
-    }, this.updateHash);
-  }
+      time: 0,
+      universe: Universe.DEFAULT
+    }, () => {
+      this.updateHash();
+      this.resetDrawer();
+    }); }
 
   nextSelectedItem = () => {
     this.setState({
@@ -350,12 +316,6 @@ export class App extends React.Component<{}, AppState> {
           : null
       }
 
-      { false
-        ? <div className="controls">
-          <input className="time-changer" type="range" min={this.timeAtPause - 200} step={1} max={this.timeAtPause + 200} onChange={e => this.changeTime(+e.target.value)} value={time}/>
-        </div>
-        : null
-      }
       <div className="controls">
         <IconButton label="Show/hide info" icon={!hideStuff ? 'visibility_off' : 'visibility'} type="primary" onClick={this.toggleHideStuff}/>
         { !hideStuff ? <IconButton label="Play/pause" onClick={this.playPause} type="primary" icon={paused ? 'play_arrow' : 'pause'}/> : null }

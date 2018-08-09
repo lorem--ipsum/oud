@@ -52,7 +52,6 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
 
   eval(scope: any): number {
     if (!this.parsedExpression) {
-      console.log('parsing')
       this.parsedExpression = math.parse(this.expression).compile();
     }
 
