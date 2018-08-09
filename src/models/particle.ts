@@ -1,6 +1,7 @@
 import { CartesianVector } from '../utils/math-utils';
 import { Attractor } from './attractor';
 
+const MEMORY_SPAN = 400;
 const LIFE_SPAN = 200;
 
 export class Particle {
@@ -46,38 +47,24 @@ export class Particle {
     this.lifeSpan = params.lifeSpan || LIFE_SPAN;
   }
 
-  private _memory: Record<number, number[]> = [];
+  private _memory: Record<number, number[]> = {};
+  private oldestMemory: number;
 
   update(time: number, attractors: Attractor[] = []) {
     if (time < this.timeAtCreation) return this;
     if (time === this.time) return this;
 
-    const memory = this._memory[time];
-    if (memory) {
-      this.px = memory[0];
-      this.py = memory[1];
+    this.px += this.vx;
+    this.py += this.vy;
 
-      this.vx = memory[2];
-      this.vy = memory[3];
+    this.vx += this.ax;
+    this.vy += this.ay;
 
-      this.ax = memory[4];
-      this.ay = memory[5];
-
-    } else {
-      this.px += this.vx;
-      this.py += this.vy;
-
-      this.vx += this.ax;
-      this.vy += this.ay;
-
-      let i = attractors.length;
-      while (i--) {
-        const f = attractors[i].getAttractionForce(this);
-        this.ax += f.x;
-        this.ay += f.y;
-      }
-
-      this._memory[time] = [this.px, this.py, this.vx, this.vy, this.ax, this.ay];
+    let i = attractors.length;
+    while (i--) {
+      const f = attractors[i].getAttractionForce(this);
+      this.ax += f.x;
+      this.ay += f.y;
     }
 
     this.time = time;

@@ -106,6 +106,23 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
     super(params);
   }
 
+  equals(other: any) {
+    return Emitter.isEmitter(other)
+      && other.label === this.label
+      && other.x.expression === this.x.expression
+      && other.y.expression === this.y.expression
+      && other.angle.expression === this.angle.expression
+      && other.spread.expression === this.spread.expression
+      && other.velocity.expression === this.velocity.expression
+      && other.batchSize.expression === this.batchSize.expression
+      && other.emissionRate.expression === this.emissionRate.expression
+      && other.lifeSpan.expression === this.lifeSpan.expression
+      && other.hue.expression === this.hue.expression
+      && other.saturation.expression === this.saturation.expression
+      && other.lightness.expression === this.lightness.expression
+      ;
+  }
+
   serialize() {
     return [
       this.name,

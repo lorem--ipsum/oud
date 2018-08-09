@@ -72,6 +72,15 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
   public getY: () => Variable;
   public getMass: () => Variable;
 
+  equals(other: any) {
+    return Attractor.isAttractor(other)
+      && other.label === this.label
+      && other.x.expression === this.x.expression
+      && other.y.expression === this.y.expression
+      && other.mass.expression === this.mass.expression
+      ;
+  }
+
   serialize() {
     return [
       this.name,

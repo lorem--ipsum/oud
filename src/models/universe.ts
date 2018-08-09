@@ -275,6 +275,17 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
 
     return this.selectedItems.map(n => NamedArray.findByName(a as (Emitter | Attractor)[], n));
   }
+
+  resetTime() {
+    const { emitters, attractors } = this;
+
+    const v = this.valueOf();
+
+    v.emitters = emitters.map(e => e.change('time', 0));
+    v.attractors = attractors.map(a => a.change('time', 0));
+
+    return new Universe(v);
+  }
 }
 
 BaseImmutable.finalize(Universe);

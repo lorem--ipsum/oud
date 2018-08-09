@@ -15,8 +15,6 @@ import './app.css';
 export interface AppState {
   universe?: Universe;
 
-  hideStuff?: boolean;
-
   paused?: boolean;
 
   time?: number;
@@ -76,10 +74,24 @@ export class App extends React.Component<{}, AppState> {
   }
 
   changeTime(newTime: number) {
-    this.update(newTime);
+    let { time } = this.state;
+
+    if (time < newTime) {
+      while (time < newTime) {
+        time++;
+        this.update(time, true);
+      }
+    } else {
+      while (time > newTime) {
+        time--;
+        this.update(time, true);
+      }
+    }
+
+    this.update(time);
   }
 
-  update(time: number) {
+  update(time: number, noDraw = false) {
     const { paused, universe } = this.state;
 
     const newUniverse = universe.update(time);
@@ -93,9 +105,11 @@ export class App extends React.Component<{}, AppState> {
     this.clear();
 
     let newParticles: Particle[] = [];
-    emitters.forEach(e => {
-      if (time >= e.time) e.emit(newParticles)
-    });
+    if (this.particles.length < 20000) {
+      emitters.forEach(e => {
+        if (time >= e.time) e.emit(newParticles)
+      });
+    }
 
     const ctx = this.canvas.getContext('2d');
 
@@ -110,6 +124,8 @@ export class App extends React.Component<{}, AppState> {
 
       p.update(time, attractors);
       newParticles.push(p);
+
+      if (noDraw) continue;
 
       const color = `hsl(${p.color[0]}, ${p.color[1]}%, ${p.color[2]}%)`;
       if (color !== lastColor) ctx.fillStyle = color;
@@ -170,7 +186,7 @@ export class App extends React.Component<{}, AppState> {
 
     this.setState({
       time: 0,
-      universe: this.state.universe.update(0)
+      universe: this.state.universe.resetTime()
     });
   }
 
@@ -225,7 +241,7 @@ export class App extends React.Component<{}, AppState> {
 
     this.setState({
       universe: universe.toggleControls()
-    });
+    }, this.updateHash);
   }
 
   removeSelectedItems = () => {
@@ -233,7 +249,7 @@ export class App extends React.Component<{}, AppState> {
 
     this.setState({
       universe: universe.deleteSelectedItems()
-    });
+    }, this.updateHash);
   }
 
   duplicateSelectedItems = () => {
@@ -241,7 +257,7 @@ export class App extends React.Component<{}, AppState> {
 
     this.setState({
       universe: universe.duplicateSelectedItems()
-    });
+    }, this.updateHash);
   }
 
   renderEmitter = (item: Emitter) => {
@@ -278,9 +294,11 @@ export class App extends React.Component<{}, AppState> {
   }
 
   public render() {
-    const { hideStuff, paused, universe, time } = this.state;
+    const { paused, universe, time } = this.state;
+    const { selectedItems, attractors, emitters } = universe;
 
     const fps = Math.round(this.fps.reduce(((total, a) => total + a), 0) / this.fps.length);
+    const hideStuff = universe.controlsHidden;
 
     return <div className="app">
       { !hideStuff
@@ -310,15 +328,15 @@ export class App extends React.Component<{}, AppState> {
                 <g className="event-target" onClick={() => this.setState({universe: universe.changeSelectedItems([])})}>
                   <rect x="0" width="500" y="0" height="500"/>
                 </g>
-                { universe.attractors.map(this.renderAttractor) }
-                { universe.emitters.map(this.renderEmitter) }
+                { attractors.map(this.renderAttractor) }
+                { emitters.map(this.renderEmitter) }
               </svg>
             : null
         }
       </div>
 
       {
-        !hideStuff && universe.selectedItems && universe.selectedItems.length
+        !hideStuff && selectedItems && selectedItems.length
           ? <Detail
               fields={universe.getSelectedItemsFields()}
               items={universe.getActualSelectedItems()}
@@ -327,14 +345,14 @@ export class App extends React.Component<{}, AppState> {
               previous={this.previousSelectedItem}
 
               remove={this.removeSelectedItems}
-              duplicate={universe.selectedItems.length === 1 ? this.duplicateSelectedItems : null}
+              duplicate={selectedItems.length === 1 ? this.duplicateSelectedItems : null}
             />
           : null
       }
 
-      { paused
+      { false
         ? <div className="controls">
-          <input type="range" min={0} max={this.timeAtPause * 2} onChange={e => this.changeTime(+e.target.value)} value={time}/>
+          <input className="time-changer" type="range" min={this.timeAtPause - 200} step={1} max={this.timeAtPause + 200} onChange={e => this.changeTime(+e.target.value)} value={time}/>
         </div>
         : null
       }

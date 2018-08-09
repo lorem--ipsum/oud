@@ -52,6 +52,7 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
 
   eval(scope: any): number {
     if (!this.parsedExpression) {
+      console.log('parsing')
       this.parsedExpression = math.parse(this.expression).compile();
     }
 
@@ -59,9 +60,9 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
   }
 
   update(scope: any) {
-    const v = this.valueOf();
-
     const currentValue = this.eval(scope);
+
+    const v = this.valueOf();
     v.currentValue = isNaN(currentValue) ? 0 : currentValue;
 
     return new Variable(v);
