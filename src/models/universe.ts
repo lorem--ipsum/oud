@@ -1,11 +1,11 @@
-import { BaseImmutable, Property, NamedArray } from 'immutable-class';
+import { BaseImmutable, NamedArray, Property } from 'immutable-class';
 
-import { Emitter, EmitterJS } from './emitter';
 import { Attractor, AttractorJS } from './attractor';
+import { Emitter, EmitterJS } from './emitter';
 
 function getUniqueName(array: (Emitter | Attractor)[], root: string): string {
   let n = 0;
-  let name = root;
+  const name = root;
 
   while (NamedArray.containsByName(array, name + ' #' + n)) n++;
 
@@ -20,7 +20,7 @@ export interface UniverseValue {
 }
 
 export interface UniverseJS {
-  emitters?: EmitterJS[]
+  emitters?: EmitterJS[];
   attractors?: AttractorJS[];
   controlsHidden?: boolean;
   selectedItems?: string[];
@@ -33,7 +33,7 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
     { name: 'emitters', immutableClassArray: Emitter },
     { name: 'attractors', immutableClassArray: Attractor },
     { name: 'controlsHidden', defaultValue: false },
-    { name: 'selectedItems', defaultValue: null }
+    { name: 'selectedItems', defaultValue: null },
   ];
 
   static fromJS(params: UniverseJS) {
@@ -43,19 +43,37 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   static fromHash(hash: string): Universe {
     if (!hash) return Universe.DEFAULT;
 
+    const commonScope = {
+      t: 0,
+      R: Math.random(),
+    };
+
     try {
       const json = JSON.parse(decodeURI(hash.replace(/^#/, '')));
 
-      const emitters = json.emitters.map((e: any, i: number) => Emitter.unserialize(e).update(0, i, json.emitters.length));
-      const attractors = json.attractors.map((a: any, i: number) => Attractor.unserialize(a).update(0, i, json.attractors.length));
+      const emitters = json.emitters.map((e: any, i: number) =>
+        Emitter.unserialize(e).update({
+          ...commonScope,
+          j: i,
+          n: json.emitters.length,
+          r: Math.random(),
+        }),
+      );
+      const attractors = json.attractors.map((a: any, i: number) =>
+        Attractor.unserialize(a).update({
+          ...commonScope,
+          j: i,
+          n: json.attractors.length,
+          r: Math.random(),
+        }),
+      );
 
       return new Universe({
         emitters,
         attractors,
         controlsHidden: !!json.controlsHidden,
-        selectedItems: json.selectedItems
+        selectedItems: json.selectedItems,
       });
-
     } catch (e) {
       console.log(e);
       return Universe.DEFAULT;
@@ -66,7 +84,6 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   public attractors: Attractor[];
   public controlsHidden: boolean;
   public selectedItems: string[];
-
 
   constructor(params: UniverseValue = {}) {
     super(params);
@@ -88,17 +105,36 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
       selectedItems,
       controlsHidden,
       emitters: emitters.map(e => e.serialize()),
-      attractors: attractors.map(a => a.serialize())
+      attractors: attractors.map(a => a.serialize()),
     };
 
     return '#' + encodeURI(JSON.stringify(o));
   }
 
   update(time: number) {
-    let v = this.valueOf();
+    const v = this.valueOf();
 
-    v.emitters = this.emitters.map((e, i) => e.update(time, i, this.emitters.length));
-    v.attractors = this.attractors.map((a, i) => a.update(time, i, this.attractors.length));
+    const commonScope = {
+      t: time,
+      R: Math.random(),
+    };
+
+    v.emitters = this.emitters.map((e, i) =>
+      e.update({
+        ...commonScope,
+        j: i,
+        n: this.emitters.length,
+        r: Math.random(),
+      }),
+    );
+    v.attractors = this.attractors.map((a, i) =>
+      a.update({
+        ...commonScope,
+        j: i,
+        n: this.attractors.length,
+        r: Math.random(),
+      }),
+    );
 
     return new Universe(v);
   }
@@ -110,18 +146,25 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
     const newItem = Emitter.fromJS({
       name,
       label: name,
-      x: '50', y: '50',
+      x: '50',
+      y: '50',
       spread: 'pi / 4',
       angle: '0',
       emissionRate: 'true',
       batchSize: '6',
       lifeSpan: '500',
       hue: 'abs(sin(t / 50)) + 1',
-    }).update(time, emitters.length, emitters.length + 1);
+    }).update({
+      t: time,
+      j: emitters.length,
+      n: emitters.length + 1,
+      r: Math.random(),
+      R: Math.random(),
+    });
 
     return this.changeMany({
       emitters: emitters.concat([newItem]),
-      selectedItems: [newItem.name]
+      selectedItems: [newItem.name],
     });
   }
 
@@ -133,12 +176,19 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
       name,
       label: name,
       mass: 'sin(t / 50) * 20',
-      x: '250', y: '50',
-    }).update(time, attractors.length, attractors.length + 1);
+      x: '250',
+      y: '50',
+    }).update({
+      t: time,
+      j: attractors.length,
+      n: attractors.length + 1,
+      r: Math.random(),
+      R: Math.random(),
+    });
 
     return this.changeMany({
       attractors: attractors.concat([newItem]),
-      selectedItems: [newItem.name]
+      selectedItems: [newItem.name],
     });
   }
 
@@ -193,10 +243,16 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
 
     if (isEmitter) {
       return [
-        'x', 'y',
-        'angle', 'spread',
-        'velocity', 'batchSize',
-        'emissionRate', 'hue', 'saturation', 'lightness'
+        'x',
+        'y',
+        'angle',
+        'spread',
+        'velocity',
+        'batchSize',
+        'emissionRate',
+        'hue',
+        'saturation',
+        'lightness',
       ];
     } else {
       return ['x', 'y', 'mass'];
@@ -220,8 +276,8 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
       } else {
         newSelectedItems = selectedItems.concat([item.name]);
 
-        const onlyAttractors = newSelectedItems.every(n => !!NamedArray.findByName(attractors, n))
-        const onlyEmitters = newSelectedItems.every(n => !!NamedArray.findByName(emitters, n))
+        const onlyAttractors = newSelectedItems.every(n => !!NamedArray.findByName(attractors, n));
+        const onlyEmitters = newSelectedItems.every(n => !!NamedArray.findByName(emitters, n));
 
         if (!onlyAttractors && !onlyEmitters) {
           newSelectedItems = [item.name];
@@ -253,8 +309,10 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
       const newItems = selectedItems.map(name => {
         const newName = getUniqueName(emitters, 'Emitter');
 
-        return NamedArray.findByName(emitters, name)
-          .changeMany({name: newName, label: newName});
+        return NamedArray.findByName(emitters, name).changeMany({
+          name: newName,
+          label: newName,
+        });
       });
 
       return this.changeEmitters(emitters.concat(newItems));
@@ -262,8 +320,10 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
       const newItems = selectedItems.map(name => {
         const newName = getUniqueName(attractors, 'Attractor');
 
-        return NamedArray.findByName(attractors, name)
-          .changeMany({name: newName, label: newName});
+        return NamedArray.findByName(attractors, name).changeMany({
+          name: newName,
+          label: newName,
+        });
       });
 
       return this.changeAttractors(attractors.concat(newItems));
@@ -290,6 +350,7 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
 
 BaseImmutable.finalize(Universe);
 
+const R = Math.random();
 Universe.DEFAULT = new Universe({
   selectedItems: [],
   controlsHidden: false,
@@ -297,33 +358,36 @@ Universe.DEFAULT = new Universe({
     Emitter.fromJS({
       name: 'Emitter #0',
       label: 'Emitter #0',
-      x: '50', y: '250',
+      x: '50',
+      y: '250',
       spread: 'pi / 4',
       angle: '0',
       emissionRate: 't % 20 == 0',
       batchSize: '1',
       lifeSpan: '500',
-      hue: 'abs(sin(t / 50)) + 1'
-    }).update(0, 0, 2),
+      hue: 'abs(sin(t / 50)) + 1',
+    }).update({ t: 0, j: 0, n: 2, r: Math.random(), R }),
     Emitter.fromJS({
       name: 'Emitter #1',
       label: 'Emitter #1',
-      x: '450', y: '250',
+      x: '450',
+      y: '250',
       spread: 'pi / 4',
       angle: 'pi',
       emissionRate: 't % 20 == 0',
       batchSize: '1',
       lifeSpan: '500',
-      hue: 'abs(sin(t / 50)) + 1'
-    }).update(0, 1, 2)
+      hue: 'abs(sin(t / 50)) + 1',
+    }).update({ t: 0, j: 1, n: 2, r: Math.random(), R }),
   ] as any,
   attractors: [
     Attractor.fromJS({
       name: 'Attractor #0',
       label: 'Attractor #0',
       mass: 'sin(t / 50) * 20',
-      x: '250', y: '250',
-      time: 0
-    }).update(0, 0, 1)
-  ]
+      x: '250',
+      y: '250',
+      time: 0,
+    }).update({ t: 0, j: 0, n: 1, r: Math.random(), R }),
+  ],
 });

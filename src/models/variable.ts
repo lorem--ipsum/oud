@@ -1,25 +1,25 @@
-import * as math from 'mathjs';
 import { BaseImmutable, Property } from 'immutable-class';
+import * as math from 'mathjs';
+import moize from 'moize';
 
-export type VariableValue = {
+export interface VariableValue {
   expression: string;
   currentValue?: number;
   parsedExpression?: math.EvalFunction;
-};
+}
 
 export class Variable extends BaseImmutable<VariableValue, VariableValue> {
   static PROPERTIES: Property[] = [
     { name: 'expression' },
     { name: 'currentValue', defaultValue: 0 },
-    { name: 'parsedExpression', defaultValue: null }
+    { name: 'parsedExpression', defaultValue: null },
   ];
 
   static fromJS(params: VariableValue | string) {
-    if (typeof params === 'string') params = {expression: params};
+    if (typeof params === 'string') params = { expression: params };
 
     return new Variable(BaseImmutable.jsToValue(Variable.PROPERTIES, params));
   }
-
 
   public expression: string;
   public currentValue: number;
@@ -34,10 +34,7 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
   }
 
   equals(other: any) {
-    return other &&
-      other instanceof Variable &&
-      other.expression === this.expression
-      ;
+    return other && other instanceof Variable && other.expression === this.expression;
   }
 
   changeExpression(newExpression: string) {
@@ -49,16 +46,15 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
     return new Variable(v);
   }
 
-
-  eval(scope: any): number {
+  eval(scope: Record<string, number>): number {
     if (!this.parsedExpression) {
       this.parsedExpression = math.parse(this.expression).compile();
     }
 
-    return math.parse(this.expression).eval(scope);
+    return this.parsedExpression.evaluate(scope);
   }
 
-  update(scope: any) {
+  update(scope: Record<string, number>) {
     const currentValue = this.eval(scope);
 
     const v = this.valueOf();

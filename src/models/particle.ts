@@ -1,10 +1,12 @@
+import * as uuid from 'uuid';
+
 import { CartesianVector } from '../utils/math-utils';
+
 import { Attractor } from './attractor';
 
 const MEMORY_SPAN = 400;
 
 export class Particle {
-
   // Position
   public px = 0;
   public py = 0;
@@ -24,6 +26,7 @@ export class Particle {
   public time = 0;
   private timeAtCreation = 0;
   private lifeSpan: number;
+  public id = uuid.v4();
 
   constructor(params: any) {
     this.time = params.time;
@@ -86,6 +89,6 @@ export class Particle {
   }
 
   get opacity() {
-    return this.age < 0 ? 0 : (1 - this.age / this.lifeSpan);
+    return this.age < 0 ? 0 : 1 - this.age / this.lifeSpan;
   }
 }

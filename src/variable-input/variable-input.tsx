@@ -1,14 +1,12 @@
-import * as React from 'react';
-import * as classNames from 'classnames';
-
+import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormControl from '@material-ui/core/FormControl';
+import * as classNames from 'classnames';
+import { BaseImmutable } from 'immutable-class';
+import * as React from 'react';
 
 import { Variable } from '../models/index';
-
-import { BaseImmutable } from 'immutable-class';
 
 import './variable-input.css';
 
@@ -27,7 +25,10 @@ export interface VariableInputState {
   error?: string;
 }
 
-export class VariableInput<T extends BaseImmutable<any, any>> extends React.Component<VariableInputProps<T>, VariableInputState> {
+export class VariableInput<T extends BaseImmutable<any, any>> extends React.Component<
+  VariableInputProps<T>,
+  VariableInputState
+> {
   constructor(props: VariableInputProps<T>, context: any) {
     super(props, context);
 
@@ -46,7 +47,7 @@ export class VariableInput<T extends BaseImmutable<any, any>> extends React.Comp
 
     this.setState({
       error: undefined,
-      value: target.deepGet(path + '.expression')
+      value: target.deepGet(path + '.expression'),
     });
   }
 
@@ -73,21 +74,30 @@ export class VariableInput<T extends BaseImmutable<any, any>> extends React.Comp
 
     this.setState({
       value: e.target.value,
-      error
+      error,
     });
-  }
+  };
 
   public render() {
     const { target, path, label, helpText, emptyUntilChangePlaceholder } = this.props;
     const { value, error } = this.state;
 
-    const _label = emptyUntilChangePlaceholder ? label + ' (' + emptyUntilChangePlaceholder + ')' : label;
+    const _label = emptyUntilChangePlaceholder
+      ? label + ' (' + emptyUntilChangePlaceholder + ')'
+      : label;
 
-    return <FormControl className={classNames('variable-input', {error: !!error})} error={!!error}>
-      <InputLabel htmlFor="name-helper">{_label}</InputLabel>
-      <Input id="name-helper" className="input" value={emptyUntilChangePlaceholder ? '' : value} onChange={this.onChange} />
-      { helpText ? <FormHelperText id="name-helper-text">{helpText}</FormHelperText> : null }
-      { error ? <FormHelperText id="name-helper-text">{error}</FormHelperText> : null }
-    </FormControl>
+    return (
+      <FormControl className={classNames('variable-input', { error: !!error })} error={!!error}>
+        <InputLabel htmlFor="name-helper">{_label}</InputLabel>
+        <Input
+          id="name-helper"
+          className="input"
+          value={emptyUntilChangePlaceholder ? '' : value}
+          onChange={this.onChange}
+        />
+        {helpText ? <FormHelperText id="name-helper-text">{helpText}</FormHelperText> : null}
+        {error ? <FormHelperText id="name-helper-text">{error}</FormHelperText> : null}
+      </FormControl>
+    );
   }
 }

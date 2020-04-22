@@ -1,8 +1,9 @@
 import { BaseImmutable, Property } from 'immutable-class';
-import { Variable, VariableValue } from './variable';
-import { Particle } from './particle';
 
 import { CartesianVector } from '../utils/math-utils';
+
+import { Particle } from './particle';
+import { Variable, VariableValue } from './variable';
 
 const G = 0.1;
 
@@ -32,10 +33,22 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
   static PROPERTIES: Property[] = [
     { name: 'name' },
     { name: 'label', defaultValue: 'Attractor' },
-    { name: 'x', defaultValue: Variable.fromJS({expression: '250'}), immutableClass: Variable },
-    { name: 'y', defaultValue: Variable.fromJS({expression: '250'}), immutableClass: Variable },
-    { name: 'mass', defaultValue: Variable.fromJS({expression: '10'}), immutableClass: Variable },
-    { name: 'time', defaultValue: 0 }
+    {
+      name: 'x',
+      defaultValue: Variable.fromJS({ expression: '250' }),
+      immutableClass: Variable,
+    },
+    {
+      name: 'y',
+      defaultValue: Variable.fromJS({ expression: '250' }),
+      immutableClass: Variable,
+    },
+    {
+      name: 'mass',
+      defaultValue: Variable.fromJS({ expression: '10' }),
+      immutableClass: Variable,
+    },
+    { name: 'time', defaultValue: 0 },
   ];
 
   static fromJS(params: AttractorValue) {
@@ -50,7 +63,7 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
       label: bits[1],
       x: Variable.fromJS(bits[2]),
       y: Variable.fromJS(bits[3]),
-      mass: Variable.fromJS(bits[4])
+      mass: Variable.fromJS(bits[4]),
     });
   }
 
@@ -73,12 +86,13 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
   public getMass: () => Variable;
 
   equals(other: any) {
-    return Attractor.isAttractor(other)
-      && other.label === this.label
-      && other.x.expression === this.x.expression
-      && other.y.expression === this.y.expression
-      && other.mass.expression === this.mass.expression
-      ;
+    return (
+      Attractor.isAttractor(other) &&
+      other.label === this.label &&
+      other.x.expression === this.x.expression &&
+      other.y.expression === this.y.expression &&
+      other.mass.expression === this.mass.expression
+    );
   }
 
   serialize() {
@@ -92,13 +106,13 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
     ].join('_');
   }
 
-  update(t: number, j: number, n: number) {
+  update(scope: { t: number; j: number; n: number; r: number; R: number }) {
     const v = this.valueOf();
 
-    v.mass = this.getMass().update({t, j, n});
-    v.x = this.getX().update({t, j, n});
-    v.y = this.getY().update({t, j, n});
-    v.time = t;
+    v.mass = this.getMass().update(scope);
+    v.x = this.getX().update(scope);
+    v.y = this.getY().update(scope);
+    v.time = scope.t;
 
     return new Attractor(v);
   }
@@ -114,10 +128,10 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
 
     const strength = (G * mass * p.mass) / squaredMag;
 
-    x = strength * x / mag;
-    y = strength * y / mag;
+    x = (strength * x) / mag;
+    y = (strength * y) / mag;
 
-    return {x, y};
+    return { x, y };
   }
 }
 BaseImmutable.finalize(Attractor);

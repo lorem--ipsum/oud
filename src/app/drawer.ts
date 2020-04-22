@@ -14,10 +14,13 @@ export function init(canvas: HTMLCanvasElement, onDone: () => void) {
   width = rect.width;
   height = rect.height;
 
-  regl({canvas, onDone: (err, r) => {
-    _regl = r;
-    onDone();
-  }});
+  regl({
+    canvas,
+    onDone: (err, r) => {
+      _regl = r;
+      onDone();
+    },
+  });
 }
 
 export function start(getParticles: (time: number) => Particle[]) {
@@ -27,11 +30,10 @@ export function start(getParticles: (time: number) => Particle[]) {
     });
   }
 
-  animate(getParticles(0))
+  animate(getParticles(0));
 }
 
 export function nextTick(tick: number, particles: Particle[]) {
-
   const drawPoints = createDrawPoints(particles);
 
   _regl.clear({
@@ -42,7 +44,7 @@ export function nextTick(tick: number, particles: Particle[]) {
   drawPoints({
     pointWidth,
     stageWidth: width,
-    stageHeight: height
+    stageHeight: height,
   });
 }
 
@@ -59,7 +61,6 @@ export function clear() {
     depth: 1,
   });
 }
-
 
 function createDrawPoints(points: Particle[]) {
   return _regl({
@@ -137,13 +138,13 @@ function createDrawPoints(points: Particle[]) {
       // am using these outside and I want to ensure they are the same numbers,
       // so I am explicitly passing them in.
       stageWidth: (_regl.prop as any)('stageWidth'),
-      stageHeight: (_regl.prop as any)('stageHeight')
+      stageHeight: (_regl.prop as any)('stageHeight'),
     },
 
     // specify the number of points to draw
     count: points.length,
 
     // specify that each vertex is a point (not part of a mesh)
-    primitive: 'points'
+    primitive: 'points',
   });
 }

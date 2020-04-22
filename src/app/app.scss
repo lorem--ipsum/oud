@@ -1,10 +1,4 @@
-.app {
-  width: 500px;
-  position: absolute;
-  top: 80px;
-  left: 50%;
-  transform: translate(-50%, 0);
-
+.oud {
   .examples {
     position: absolute;
     top: -30px;
@@ -80,7 +74,6 @@
     }
 
     button {
-
       &:not(:first-child) {
         margin-left: 5px;
       }

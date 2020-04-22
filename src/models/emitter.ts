@@ -1,8 +1,9 @@
 import { BaseImmutable, Property } from 'immutable-class';
 
 import { cartesianFromPolar } from '../utils/math-utils';
-import { Variable, VariableValue } from './variable';
+
 import { Particle } from './particle';
+import { Variable, VariableValue } from './variable';
 
 export interface EmitterValue {
   name: string;
@@ -42,20 +43,59 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
   static PROPERTIES: Property[] = [
     { name: 'name' },
     { name: 'label', defaultValue: 'Emitter' },
-    { name: 'x', defaultValue: Variable.fromJS('50'), immutableClass: Variable },
-    { name: 'y', defaultValue: Variable.fromJS('50'), immutableClass: Variable },
-    { name: 'angle', defaultValue: Variable.fromJS('pi'), immutableClass: Variable },
-    { name: 'spread', defaultValue: Variable.fromJS('pi/4'), immutableClass: Variable },
-    { name: 'velocity', defaultValue: Variable.fromJS('20'), immutableClass: Variable },
-    { name: 'batchSize', defaultValue: Variable.fromJS('10'), immutableClass: Variable },
+    {
+      name: 'x',
+      defaultValue: Variable.fromJS('50'),
+      immutableClass: Variable,
+    },
+    {
+      name: 'y',
+      defaultValue: Variable.fromJS('50'),
+      immutableClass: Variable,
+    },
+    {
+      name: 'angle',
+      defaultValue: Variable.fromJS('pi'),
+      immutableClass: Variable,
+    },
+    {
+      name: 'spread',
+      defaultValue: Variable.fromJS('pi/4'),
+      immutableClass: Variable,
+    },
+    {
+      name: 'velocity',
+      defaultValue: Variable.fromJS('20'),
+      immutableClass: Variable,
+    },
+    {
+      name: 'batchSize',
+      defaultValue: Variable.fromJS('10'),
+      immutableClass: Variable,
+    },
     { name: 'emissionRate', defaultValue: true, immutableClass: Variable },
-    { name: 'lifeSpan', defaultValue: Variable.fromJS('2000'), immutableClass: Variable },
+    {
+      name: 'lifeSpan',
+      defaultValue: Variable.fromJS('2000'),
+      immutableClass: Variable,
+    },
 
-    { name: 'hue', defaultValue: Variable.fromJS('255'), immutableClass: Variable },
-    { name: 'saturation', defaultValue: Variable.fromJS('.9'), immutableClass: Variable },
-    { name: 'lightness', defaultValue: Variable.fromJS('.7'), immutableClass: Variable },
-    { name: 'time', defaultValue: 0 }
-
+    {
+      name: 'hue',
+      defaultValue: Variable.fromJS('255'),
+      immutableClass: Variable,
+    },
+    {
+      name: 'saturation',
+      defaultValue: Variable.fromJS('.9'),
+      immutableClass: Variable,
+    },
+    {
+      name: 'lightness',
+      defaultValue: Variable.fromJS('.7'),
+      immutableClass: Variable,
+    },
+    { name: 'time', defaultValue: 0 },
   ];
 
   static fromJS(params: EmitterValue) {
@@ -82,7 +122,7 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
       hue: Variable.fromJS(bits[9]),
       saturation: Variable.fromJS(bits[10]),
       lightness: Variable.fromJS(bits[11]),
-      lifeSpan: Variable.fromJS(bits[12])
+      lifeSpan: Variable.fromJS(bits[12]),
     });
   }
 
@@ -107,20 +147,21 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
   }
 
   equals(other: any) {
-    return Emitter.isEmitter(other)
-      && other.label === this.label
-      && other.x.expression === this.x.expression
-      && other.y.expression === this.y.expression
-      && other.angle.expression === this.angle.expression
-      && other.spread.expression === this.spread.expression
-      && other.velocity.expression === this.velocity.expression
-      && other.batchSize.expression === this.batchSize.expression
-      && other.emissionRate.expression === this.emissionRate.expression
-      && other.lifeSpan.expression === this.lifeSpan.expression
-      && other.hue.expression === this.hue.expression
-      && other.saturation.expression === this.saturation.expression
-      && other.lightness.expression === this.lightness.expression
-      ;
+    return (
+      Emitter.isEmitter(other) &&
+      other.label === this.label &&
+      other.x.expression === this.x.expression &&
+      other.y.expression === this.y.expression &&
+      other.angle.expression === this.angle.expression &&
+      other.spread.expression === this.spread.expression &&
+      other.velocity.expression === this.velocity.expression &&
+      other.batchSize.expression === this.batchSize.expression &&
+      other.emissionRate.expression === this.emissionRate.expression &&
+      other.lifeSpan.expression === this.lifeSpan.expression &&
+      other.hue.expression === this.hue.expression &&
+      other.saturation.expression === this.saturation.expression &&
+      other.lightness.expression === this.lightness.expression
+    );
   }
 
   serialize() {
@@ -138,7 +179,7 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
       this.getHue().expression,
       this.getSaturation().expression,
       this.getLightness().expression,
-      this.getLifeSpan().expression
+      this.getLifeSpan().expression,
     ].join('_');
   }
 
@@ -162,7 +203,7 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
     const color = [
       Math.floor(this.getHue().getValue() * 255),
       Math.floor(this.getSaturation().getValue() * 100),
-      Math.floor(this.getLightness().getValue() * 100)
+      Math.floor(this.getLightness().getValue() * 100),
     ];
 
     return `hsl(${color[0]}, ${color[1]}%, ${color[2]}%)`;
@@ -174,45 +215,45 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
     const color = [
       this.getHue().getValue(),
       this.getSaturation().getValue(),
-      this.getLightness().getValue()
+      this.getLightness().getValue(),
     ];
     const x = this.getX().getValue();
     const y = this.getY().getValue();
     const lifeSpan = this.getLifeSpan().getValue();
 
-    const step = count > 1 ?  (spread / (count - 1)) * index : spread / 2;
+    const step = count > 1 ? (spread / (count - 1)) * index : spread / 2;
 
     const velocity = cartesianFromPolar({
       radius: this.getVelocity().getValue() / 20,
-      theta: angle - spread * .5 + step
+      theta: angle - spread * 0.5 + step,
     });
 
     return new Particle({
       time: this.time,
-      position: {x, y},
+      position: { x, y },
       velocity,
-      acceleration: {x: 0, y: 0},
+      acceleration: { x: 0, y: 0 },
       color,
-      lifeSpan
+      lifeSpan,
     });
   }
 
-  update(t: number, j: number, n: number) {
+  update(scope: { t: number; j: number; n: number; r: number; R: number }) {
     const v = this.valueOf();
 
-    v.x = this.getX().update({t, j, n});
-    v.y = this.getY().update({t, j, n});
-    v.angle = this.getAngle().update({t, j, n});
-    v.spread = this.getSpread().update({t, j, n});
-    v.velocity = this.getVelocity().update({t, j, n});
-    v.batchSize = this.getBatchSize().update({t, j, n});
-    v.emissionRate = this.getEmissionRate().update({t, j, n});
-    v.hue = this.getHue().update({t, j, n});
-    v.saturation = this.getSaturation().update({t, j, n});
-    v.lightness = this.getLightness().update({t, j, n});
-    v.lifeSpan = this.getLifeSpan().update({t, j, n});
+    v.x = this.getX().update(scope);
+    v.y = this.getY().update(scope);
+    v.angle = this.getAngle().update(scope);
+    v.spread = this.getSpread().update(scope);
+    v.velocity = this.getVelocity().update(scope);
+    v.batchSize = this.getBatchSize().update(scope);
+    v.emissionRate = this.getEmissionRate().update(scope);
+    v.hue = this.getHue().update(scope);
+    v.saturation = this.getSaturation().update(scope);
+    v.lightness = this.getLightness().update(scope);
+    v.lifeSpan = this.getLifeSpan().update(scope);
 
-    v.time = t >= this.time || isNaN(this.time) ? t : this.time;
+    v.time = scope.t >= this.time || isNaN(this.time) ? scope.t : this.time;
 
     return new Emitter(v);
   }
@@ -228,6 +269,5 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
       target.push(this.getNewParticle(i, batchSize));
     }
   }
-
 }
 BaseImmutable.finalize(Emitter);

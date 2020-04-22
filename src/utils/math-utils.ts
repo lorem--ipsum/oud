@@ -13,7 +13,7 @@ export function cartesianFromPolar(vector: PolarVector): CartesianVector {
 
   return {
     x: radius * Math.cos(theta),
-    y: radius * Math.sin(theta)
+    y: radius * Math.sin(theta),
   };
 }
 
@@ -22,6 +22,6 @@ export function polarFromCartesian(vector: CartesianVector): PolarVector {
 
   return {
     radius: Math.sqrt(x * x + y * y),
-    theta: Math.atan2(y, x)
+    theta: Math.atan2(y, x),
   };
 }
