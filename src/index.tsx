@@ -6,8 +6,5 @@ import registerServiceWorker from './registerServiceWorker';
 
 import './index.css';
 
-ReactDOM.render(
-  <Oud deaf exampleIndex={4} width={200} height={200} />,
-  document.getElementById('root') as HTMLElement,
-);
+ReactDOM.render(<Oud />, document.getElementById('root') as HTMLElement);
 registerServiceWorker();
