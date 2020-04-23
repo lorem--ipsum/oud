@@ -1,5 +1,3 @@
-// const CopyPlugin = require('copy-webpack-plugin');
-
 module.exports = {
   entry: {
     oud: './src/app/app.tsx',
@@ -47,17 +45,10 @@ module.exports = {
   },
 
   externals: {
-    // '@implydata/little-pictures': '@implydata/little-pictures',
-    // '@implydata/beltful': '@implydata/beltful',
     react: 'react',
     'react-dom': 'react-dom',
     three: 'three',
   },
 
-  plugins: [
-    // new CopyPlugin(
-    //   [{ from: 'caladan-utils.scss', to: '' }, { from: 'styles/**/*.utils.scss', to: '' }],
-    //   { context: './src' },
-    // ),
-  ],
+  plugins: [],
 };

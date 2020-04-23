@@ -10,7 +10,7 @@ import { Stats } from '../stats/stats';
 
 import * as drawer from './three-drawer';
 
-import './app.css';
+import './app.scss';
 
 interface OudProps {
   deaf?: boolean;

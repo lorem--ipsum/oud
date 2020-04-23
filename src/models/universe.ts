@@ -366,15 +366,16 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   }
 
   resetTime() {
-    const emitters = this.getEmitters();
-    const attractors = this.getAttractors();
+    return this;
+    // const emitters = this.getEmitters();
+    // const attractors = this.getAttractors();
 
-    const v = this.valueOf();
+    // const v = this.valueOf();
 
-    v.emitters = emitters.map(e => e.change('time', 0));
-    v.attractors = attractors.map(a => a.change('time', 0));
+    // v.emitters = emitters.map(e => e.change('time', 0));
+    // v.attractors = attractors.map(a => a.change('time', 0));
 
-    return new Universe(v);
+    // return new Universe(v);
   }
 }
 
