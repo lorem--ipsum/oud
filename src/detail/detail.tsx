@@ -1,6 +1,6 @@
-import * as classNames from 'classnames';
+import classNames from 'classnames';
 import { BaseImmutable } from 'immutable-class';
-import * as React from 'react';
+import React from 'react';
 
 import { IconButton } from '../icon-button/icon-button';
 import { Variable } from '../models/index';
@@ -22,7 +22,7 @@ export interface DetailProps<T> {
 
 export interface DetailState<T> {
   item?: T;
-  disabledProperties?: Record<string, boolean>;
+  disabledProperties: Record<string, boolean>;
 }
 
 export class Detail<T extends BaseImmutable<any, any>> extends React.Component<
@@ -55,7 +55,9 @@ export class Detail<T extends BaseImmutable<any, any>> extends React.Component<
   constructor(props: DetailProps<T>, context: any) {
     super(props, context);
 
-    this.state = {};
+    this.state = {
+      disabledProperties: {},
+    };
   }
 
   handleChange(item: T, field: string) {
@@ -69,9 +71,9 @@ export class Detail<T extends BaseImmutable<any, any>> extends React.Component<
   getInput(path: string, label: string) {
     const { disabledProperties } = this.state;
 
-    if (!path) return null;
-
     const { item } = this.state;
+
+    if (!path || !item) return null;
 
     return (
       <VariableInput
@@ -79,7 +81,7 @@ export class Detail<T extends BaseImmutable<any, any>> extends React.Component<
         target={item}
         path={path}
         onChange={item => this.handleChange(item, path)}
-        emptyUntilChangePlaceholder={disabledProperties[path] ? '≠ values' : null}
+        emptyUntilChangePlaceholder={disabledProperties[path] ? '≠ values' : undefined}
       />
     );
   }
@@ -105,7 +107,7 @@ export class Detail<T extends BaseImmutable<any, any>> extends React.Component<
             <IconButton type="primary" onClick={previous} icon="keyboard_arrow_left" />
           ) : null}
           <div className="title">
-            {items.length > 1 ? 'Several items selected' : item.get('label')}
+            {items.length > 1 ? 'Several items selected' : item!.get('label')}
           </div>
           {items.length === 1 && next ? (
             <IconButton type="primary" onClick={next} icon="keyboard_arrow_right" />

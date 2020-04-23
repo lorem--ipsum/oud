@@ -1,10 +1,4 @@
-import * as uuid from 'uuid';
-
-import { CartesianVector } from '../utils/math-utils';
-
 import { Attractor } from './attractor';
-
-const MEMORY_SPAN = 400;
 
 export class Particle {
   // Position
@@ -26,7 +20,6 @@ export class Particle {
   public time = 0;
   private timeAtCreation = 0;
   private lifeSpan: number;
-  public id = uuid.v4();
 
   constructor(params: any) {
     this.time = params.time;

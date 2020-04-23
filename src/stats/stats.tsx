@@ -1,5 +1,4 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
+import React from 'react';
 
 import './stats.scss';
 
@@ -12,8 +11,8 @@ export function Stats(props: StatsProps) {
   const { particlesCount, time } = props;
 
   const fpsHistory = React.useRef<number[]>([]);
-  const now = React.useRef<number>(Date.now());
-  const before = React.useRef<number>();
+  const now = React.useRef<number>();
+  const before = React.useRef<number>(Date.now());
   const [fps, setFps] = React.useState<number>();
   const requestRef = React.useRef<number>();
 
@@ -36,12 +35,12 @@ export function Stats(props: StatsProps) {
 
   React.useEffect(() => {
     requestRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(requestRef.current);
+    return () => (requestRef.current ? cancelAnimationFrame(requestRef.current) : undefined);
   }, []);
 
   return (
     <div className="info">{`${particlesCount} particles, frame #${time}, ${
-      isNaN(fps) ? '-' : fps
+      isNaN(fps as any) ? '-' : fps
     }fps`}</div>
   );
 }

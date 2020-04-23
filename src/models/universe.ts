@@ -80,32 +80,51 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
     }
   }
 
-  public emitters: Emitter[];
-  public attractors: Attractor[];
-  public controlsHidden: boolean;
-  public selectedItems: string[];
+  public emitters: Emitter[] | undefined;
+  public attractors: Attractor[] | undefined;
+  public controlsHidden: boolean | undefined;
+  public selectedItems: string[] | undefined;
 
   constructor(params: UniverseValue = {}) {
     super(params);
   }
 
+  // @ts-ignore
   changeEmitters: (emitters: Emitter[]) => Universe;
+
+  // @ts-ignore
+  getEmitters: () => Emitter[];
+
+  // @ts-ignore
   changeAttractors: (attractors: Attractor[]) => Universe;
+
+  // @ts-ignore
+  getAttractors: () => Attractor[];
+
+  // @ts-ignore
   changeSelectedItems: (selectedItems: string[]) => Universe;
+
+  // @ts-ignore
+  getSelectedItems: () => string[];
+
+  // @ts-ignore
   changeControlsHidden: (controlsHidden: boolean) => Universe;
+
+  // @ts-ignore
+  getControlsHidden: () => boolean;
 
   toggleControls() {
     return this.changeControlsHidden(!this.controlsHidden);
   }
 
   toHash() {
-    const { selectedItems, emitters, attractors, controlsHidden } = this;
+    const { selectedItems, controlsHidden } = this;
 
     const o = {
       selectedItems,
       controlsHidden,
-      emitters: emitters.map(e => e.serialize()),
-      attractors: attractors.map(a => a.serialize()),
+      emitters: this.getEmitters().map(e => e.serialize()),
+      attractors: this.getAttractors().map(a => a.serialize()),
     };
 
     return '#' + encodeURI(JSON.stringify(o));
@@ -119,19 +138,19 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
       R: Math.random(),
     };
 
-    v.emitters = this.emitters.map((e, i) =>
+    v.emitters = this.getEmitters().map((e, i) =>
       e.update({
         ...commonScope,
         j: i,
-        n: this.emitters.length,
+        n: this.getEmitters().length,
         r: Math.random(),
       }),
     );
-    v.attractors = this.attractors.map((a, i) =>
+    v.attractors = this.getAttractors().map((a, i) =>
       a.update({
         ...commonScope,
         j: i,
-        n: this.attractors.length,
+        n: this.getAttractors().length,
         r: Math.random(),
       }),
     );
@@ -140,7 +159,7 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   }
 
   addEmitter(time: number) {
-    const { emitters } = this;
+    const emitters = this.getEmitters();
 
     const name = getUniqueName(emitters, 'Emitter');
     const newItem = Emitter.fromJS({
@@ -169,7 +188,7 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   }
 
   addAttractor(time: number) {
-    const { attractors } = this;
+    const attractors = this.getAttractors();
 
     const name = getUniqueName(attractors, 'Attractor');
     const newItem = Attractor.fromJS({
@@ -197,13 +216,14 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
 
     if (!selectedItems || !selectedItems.length) return null;
 
-    if (attractors.find(a => a.name === selectedItems[0])) return attractors;
+    if (this.getAttractors().find(a => a.name === selectedItems[0])) return attractors;
 
     return emitters;
   }
 
   changeItems(items: (Attractor | Emitter)[]) {
-    const { emitters, attractors } = this;
+    const emitters = this.getEmitters();
+    const attractors = this.getAttractors();
 
     if (Emitter.isEmitter(items[0])) {
       return this.changeEmitters(NamedArray.overridesByName(emitters, items) as Emitter[]);
@@ -213,7 +233,7 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   }
 
   selectNext() {
-    const { selectedItems } = this;
+    const selectedItems = this.getSelectedItems();
 
     const a = this.getSourceOfSelection();
     if (!a) return this;
@@ -224,7 +244,7 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   }
 
   selectPrevious() {
-    const { selectedItems } = this;
+    const selectedItems = this.getSelectedItems();
 
     const a = this.getSourceOfSelection();
     if (!a) return this;
@@ -235,7 +255,8 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   }
 
   getSelectedItemsFields() {
-    const { selectedItems, attractors, emitters } = this;
+    const selectedItems = this.getSelectedItems();
+    const emitters = this.getEmitters();
 
     if (!selectedItems || !selectedItems.length) return [];
 
@@ -260,7 +281,9 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   }
 
   select(item: Attractor | Emitter, isMulti = false) {
-    const { selectedItems, attractors, emitters } = this;
+    const selectedItems = this.getSelectedItems();
+    const emitters = this.getEmitters();
+    const attractors = this.getAttractors();
 
     let newSelectedItems: string[] = [];
 
@@ -289,7 +312,9 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   }
 
   deleteSelectedItems() {
-    const { selectedItems, attractors, emitters } = this;
+    const selectedItems = this.getSelectedItems();
+    const emitters = this.getEmitters();
+    const attractors = this.getAttractors();
 
     const v = this.valueOf();
 
@@ -301,7 +326,9 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   }
 
   duplicateSelectedItems() {
-    const { selectedItems, attractors, emitters } = this;
+    const selectedItems = this.getSelectedItems();
+    const emitters = this.getEmitters();
+    const attractors = this.getAttractors();
 
     if (!selectedItems || !selectedItems.length) return this;
 
@@ -309,7 +336,7 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
       const newItems = selectedItems.map(name => {
         const newName = getUniqueName(emitters, 'Emitter');
 
-        return NamedArray.findByName(emitters, name).changeMany({
+        return NamedArray.findByName(emitters, name)!.changeMany({
           name: newName,
           label: newName,
         });
@@ -320,7 +347,7 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
       const newItems = selectedItems.map(name => {
         const newName = getUniqueName(attractors, 'Attractor');
 
-        return NamedArray.findByName(attractors, name).changeMany({
+        return NamedArray.findByName(attractors, name)!.changeMany({
           name: newName,
           label: newName,
         });
@@ -333,11 +360,14 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
   getActualSelectedItems() {
     const a = this.getSourceOfSelection();
 
-    return this.selectedItems.map(n => NamedArray.findByName(a as (Emitter | Attractor)[], n));
+    return this.getSelectedItems()
+      .map(n => NamedArray.findByName(a as (Emitter | Attractor)[], n))
+      .filter(Boolean) as (Attractor | Emitter)[];
   }
 
   resetTime() {
-    const { emitters, attractors } = this;
+    const emitters = this.getEmitters();
+    const attractors = this.getAttractors();
 
     const v = this.valueOf();
 
@@ -387,7 +417,6 @@ Universe.DEFAULT = new Universe({
       mass: 'sin(t / 50) * 20',
       x: '250',
       y: '250',
-      time: 0,
     }).update({ t: 0, j: 0, n: 1, r: Math.random(), R }),
   ],
 });

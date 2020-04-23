@@ -1,5 +1,3 @@
-import { Attractor } from './attractor';
-import { Emitter } from './emitter';
 import { UniverseJS } from './universe';
 
 export interface Example {

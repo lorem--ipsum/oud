@@ -1,15 +1,7 @@
-/*
- * Copyright (c) 2018 Imply Data, Inc. All rights reserved.
- *
- * This software is the confidential and proprietary information
- * of Imply Data, Inc.
- */
+import React from 'react';
 
 // tslint:disable-next-line
-require("./circle-selector.css");
-
-import * as classNames from 'classnames';
-import * as React from 'react';
+require('./circle-selector.css');
 
 export interface CircleSelectorProps extends React.Props<any> {
   x: number;

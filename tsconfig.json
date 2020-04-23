@@ -1,5 +1,25 @@
 {
   "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "noEmitOnError": true,
+    "declaration": false,
+    "removeComments": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": false,
+    "skipLibCheck": true,
+    "importHelpers": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "importHelpers": true,
+
     "baseUrl": ".",
     "outDir": "build/dist",
     "module": "esnext",
@@ -12,8 +32,7 @@
     "rootDir": "src",
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noImplicitAny": true,
-    "suppressImplicitAnyIndexErrors": true
+    "noImplicitAny": true
   },
   "exclude": [
     "node_modules",

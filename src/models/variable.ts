@@ -1,6 +1,7 @@
 import { BaseImmutable, Property } from 'immutable-class';
-import * as math from 'mathjs';
-import moize from 'moize';
+
+// @ts-ignore
+import math from 'mathjs/number';
 
 export interface VariableValue {
   expression: string;
@@ -41,7 +42,7 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
     const v = this.valueOf();
 
     v.expression = newExpression;
-    if (newExpression !== this.expression) v.parsedExpression = null;
+    if (newExpression !== this.expression) v.parsedExpression = undefined;
 
     return new Variable(v);
   }

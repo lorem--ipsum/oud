@@ -13,7 +13,6 @@ export interface AttractorValue {
   x?: VariableValue | string;
   y?: VariableValue | string;
   mass?: VariableValue | string;
-  time?: number;
 }
 
 export interface AttractorJS {
@@ -22,7 +21,6 @@ export interface AttractorJS {
   x?: string;
   y?: string;
   mass?: string;
-  time?: number;
 }
 
 export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
@@ -48,7 +46,6 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
       defaultValue: Variable.fromJS({ expression: '10' }),
       immutableClass: Variable,
     },
-    { name: 'time', defaultValue: 0 },
   ];
 
   static fromJS(params: AttractorValue) {
@@ -72,7 +69,6 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
   private x: Variable;
   private y: Variable;
   private mass: Variable;
-  private time: number;
 
   constructor(params: AttractorValue) {
     super(params);
@@ -112,7 +108,6 @@ export class Attractor extends BaseImmutable<AttractorValue, AttractorJS> {
     v.mass = this.getMass().update(scope);
     v.x = this.getX().update(scope);
     v.y = this.getY().update(scope);
-    v.time = scope.t;
 
     return new Attractor(v);
   }

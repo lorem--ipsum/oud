@@ -2,9 +2,9 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import * as classNames from 'classnames';
+import classNames from 'classnames';
 import { BaseImmutable } from 'immutable-class';
-import * as React from 'react';
+import React from 'react';
 
 import { Variable } from '../models/index';
 
@@ -37,7 +37,7 @@ export class VariableInput<T extends BaseImmutable<any, any>> extends React.Comp
 
   initFromProps(props: VariableInputProps<T>) {
     const { target, path } = props;
-    const { value, error } = this.state;
+    const { error } = this.state;
 
     const previousTarget = this.props.target;
 
@@ -79,7 +79,7 @@ export class VariableInput<T extends BaseImmutable<any, any>> extends React.Comp
   };
 
   public render() {
-    const { target, path, label, helpText, emptyUntilChangePlaceholder } = this.props;
+    const { label, helpText, emptyUntilChangePlaceholder } = this.props;
     const { value, error } = this.state;
 
     const _label = emptyUntilChangePlaceholder

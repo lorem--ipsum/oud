@@ -1,6 +1,10 @@
-import * as THREE from 'three';
+import THREE from 'three';
 
 import { Particle } from '../models/index';
+
+let geometry: THREE.BufferGeometry | undefined;
+
+const MAX_POINTS = 100000;
 
 let container: HTMLDivElement;
 
@@ -43,7 +47,7 @@ export function init(_container: HTMLDivElement, onDone: () => void) {
   onDone();
 }
 
-let animationFrameHandle: number;
+let animationFrameHandle: number | undefined;
 
 export function start(getParticles: (time: number) => ParticleState) {
   function animate() {
@@ -73,10 +77,6 @@ export function clear() {
     renderer.render(scene, camera);
   }
 }
-
-let geometry: THREE.BufferGeometry;
-
-const MAX_POINTS = 100000;
 
 function preRender(particles: Particle[]) {
   geometry = new THREE.BufferGeometry();
@@ -123,6 +123,8 @@ function preRender(particles: Particle[]) {
 
 function render(state: ParticleState) {
   const particles = state.newParticles.concat(state.particles);
+
+  if (!geometry) return;
 
   const positions = geometry.attributes.position.array as Float32Array;
   const colors = geometry.attributes.color.array as Float32Array;

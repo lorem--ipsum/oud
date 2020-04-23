@@ -9,13 +9,10 @@
     "classnames": "^2.2.6",
     "immutable-class": "^0.9.8",
     "mathjs": "^6.6.4",
-    "moize": "^5.4.5",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts-ts": "3.1.0",
-    "regl": "^1.4.2",
-    "three": "^0.115.0",
-    "uuid": "^7.0.3"
+    "three": "^0.115.0"
   },
   "prettier": {
     "trailingComma": "all",
@@ -41,14 +38,24 @@
     "@types/classnames": "^2.2.10",
     "@types/jest": "^25.2.1",
     "@types/mathjs": "^6.0.5",
-    "@types/node": "^13.13.1",
+    "@types/node": "^13.13.2",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
     "@types/uuid": "^7.0.2",
     "awesome-code-style": "^1.4.3",
+    "copy-webpack-plugin": "^5.1.1",
+    "css-loader": "^3.5.2",
     "gh-pages": "^2.2.0",
+    "node-sass": "^4.14.0",
     "node-sass-chokidar": "^1.4.0",
     "npm-run-all": "^4.1.5",
-    "typescript": "^3.8.3"
+    "postcss-loader": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
+    "sass-loader": "^8.0.2",
+    "style-loader": "^1.1.4",
+    "ts-loader": "^7.0.1",
+    "typescript": "^3.8.3",
+    "webpack": "^5.0.0-beta.13",
+    "webpack-cli": "^3.3.11"
   }
 }

@@ -1,6 +1,5 @@
-import * as classNames from 'classnames';
-import { NamedArray } from 'immutable-class';
-import * as React from 'react';
+import classNames from 'classnames';
+import React from 'react';
 
 import { AttractorRenderer } from '../attractor-renderer/attractor-renderer';
 import { Detail } from '../detail/detail';
@@ -21,11 +20,11 @@ interface OudProps {
 }
 
 interface OudState {
-  universe?: Universe;
+  universe: Universe;
 
   paused?: boolean;
 
-  time?: number;
+  time: number;
 }
 
 export class Oud extends React.Component<OudProps, OudState> {
@@ -34,11 +33,7 @@ export class Oud extends React.Component<OudProps, OudState> {
     height: 500,
   };
 
-  private canvas: HTMLCanvasElement;
-  private info: HTMLDivElement;
-  private container: HTMLDivElement;
-
-  private timeAtPause = 0;
+  private container = React.createRef<HTMLDivElement>();
 
   private particles: Particle[] = [];
 
@@ -74,14 +69,15 @@ export class Oud extends React.Component<OudProps, OudState> {
   };
 
   componentDidMount() {
-    drawer.init(this.container, () => drawer.start(this.update));
+    drawer.init(this.container.current!, () => drawer.start(this.update));
   }
 
   update = (time: number) => {
     const { paused, universe } = this.state;
 
     const newUniverse = universe.update(time);
-    const { emitters, attractors } = newUniverse;
+    const emitters = newUniverse.getEmitters();
+    const attractors = newUniverse.getAttractors();
 
     const discardedParticles: Particle[] = [];
     const particles: Particle[] = [];
@@ -92,7 +88,6 @@ export class Oud extends React.Component<OudProps, OudState> {
     });
 
     let i = this.particles.length;
-    const lastColor = '';
     while (i--) {
       const p = this.particles[i];
 
@@ -115,7 +110,7 @@ export class Oud extends React.Component<OudProps, OudState> {
   };
 
   playPause = () => {
-    const { paused, time } = this.state;
+    const { paused } = this.state;
 
     const isNowPaused = !paused;
 
@@ -125,7 +120,6 @@ export class Oud extends React.Component<OudProps, OudState> {
 
     if (isNowPaused) {
       drawer.stop();
-      this.timeAtPause = time;
     } else {
       drawer.start(this.update);
     }
@@ -269,7 +263,7 @@ export class Oud extends React.Component<OudProps, OudState> {
         key={item.name}
         emitter={item}
         onClick={e => this.onEmitterClick(item, e)}
-        selected={universe.selectedItems.indexOf(item.name) > -1}
+        selected={universe.getSelectedItems().indexOf(item.name) > -1}
       />
     );
   };
@@ -282,7 +276,7 @@ export class Oud extends React.Component<OudProps, OudState> {
         key={item.name}
         attractor={item}
         onClick={e => this.onAttractorClick(item, e)}
-        selected={universe.selectedItems.indexOf(item.name) > -1}
+        selected={universe.getSelectedItems().indexOf(item.name) > -1}
       />
     );
   };
@@ -301,7 +295,6 @@ export class Oud extends React.Component<OudProps, OudState> {
   public render() {
     const { deaf, width, height } = this.props;
     const { paused, universe, time } = this.state;
-    const { selectedItems, attractors, emitters } = universe;
 
     const hideStuff = deaf || universe.controlsHidden;
 
@@ -328,7 +321,7 @@ export class Oud extends React.Component<OudProps, OudState> {
         {!hideStuff ? <Stats particlesCount={this.particles.length} time={time} /> : null}
 
         <div className="stage">
-          <div ref={r => (this.container = r)} style={{ width, height }} />
+          <div ref={this.container} style={{ width, height }} />
           {!hideStuff ? (
             <svg className="overlay" width={width} height={height}>
               <g
@@ -337,13 +330,13 @@ export class Oud extends React.Component<OudProps, OudState> {
               >
                 <rect x="0" width={width} y="0" height={height} />
               </g>
-              {attractors.map(this.renderAttractor)}
-              {emitters.map(this.renderEmitter)}
+              {universe.getAttractors().map(this.renderAttractor)}
+              {universe.getEmitters().map(this.renderEmitter)}
             </svg>
           ) : null}
         </div>
 
-        {!hideStuff && selectedItems && selectedItems.length ? (
+        {!hideStuff && universe.getSelectedItems().length ? (
           <Detail
             fields={universe.getSelectedItemsFields()}
             items={universe.getActualSelectedItems()}
@@ -351,7 +344,9 @@ export class Oud extends React.Component<OudProps, OudState> {
             next={this.nextSelectedItem}
             previous={this.previousSelectedItem}
             remove={this.removeSelectedItems}
-            duplicate={selectedItems.length === 1 ? this.duplicateSelectedItems : null}
+            duplicate={
+              universe.getSelectedItems().length === 1 ? this.duplicateSelectedItems : undefined
+            }
           />
         ) : null}
 
