@@ -5,7 +5,7 @@ import { CircleSelector } from '../circle-selector/circle-selector';
 import { Emitter } from '../models/index';
 import { cartesianFromPolar, CartesianVector } from '../utils/math-utils';
 
-import './emitter-renderer.css';
+import './emitter-renderer.scss';
 
 function arc(center: CartesianVector, radius: number, startAngle: number, endAngle: number) {
   const a = cartesianFromPolar({ radius, theta: endAngle });

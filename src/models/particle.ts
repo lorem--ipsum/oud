@@ -38,7 +38,7 @@ export class Particle {
       this.ay = params.acceleration.y;
     }
 
-    this.color = params.color || [172, 207, 165];
+    this.color = params.color;
     this.lifeSpan = params.lifeSpan;
   }
 

@@ -6,7 +6,7 @@ import { IconButton } from '../icon-button/icon-button';
 import { Variable } from '../models/index';
 import { VariableInput } from '../variable-input/variable-input';
 
-import './detail.css';
+import './detail.scss';
 
 export interface DetailProps<T> {
   items: T[];
@@ -21,6 +21,7 @@ export interface DetailProps<T> {
 }
 
 export interface DetailState<T> {
+  items?: T[];
   item?: T;
   disabledProperties: Record<string, boolean>;
 }
@@ -48,6 +49,7 @@ export class Detail<T extends BaseImmutable<any, any>> extends React.Component<
 
     return {
       item,
+      items,
       disabledProperties,
     };
   }
@@ -58,6 +60,20 @@ export class Detail<T extends BaseImmutable<any, any>> extends React.Component<
     this.state = {
       disabledProperties: {},
     };
+  }
+
+  shouldComponentUpdate(nextProps: DetailProps<T>) {
+    const { items } = this.state;
+
+    if (
+      items &&
+      items.length === nextProps.items.length &&
+      items.every((it, index) => nextProps.items![index]!.equals(it))
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
   handleChange(item: T, field: string) {

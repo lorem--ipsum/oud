@@ -1,6 +1,7 @@
 import { BaseImmutable, Property } from 'immutable-class';
 
-import * as math from 'mathjs';
+// @ts-ignore
+import * as math from 'mathjs/number';
 
 export interface VariableValue {
   expression: string;

@@ -8,7 +8,7 @@ import React from 'react';
 
 import { Variable } from '../models/index';
 
-import './variable-input.css';
+import './variable-input.scss';
 
 export interface VariableInputProps<T extends BaseImmutable<any, any>> {
   label: string;

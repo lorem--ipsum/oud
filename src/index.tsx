@@ -3,6 +3,6 @@ import ReactDOM from 'react-dom';
 
 import { Oud } from './app/app';
 
-import './index.css';
+import './index.scss';
 
 ReactDOM.render(<Oud />, document.getElementById('root') as HTMLElement);

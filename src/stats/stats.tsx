@@ -1,7 +1,5 @@
 import React from 'react';
 
-import './stats.scss';
-
 interface StatsProps {
   particlesCount: number;
   time: number;

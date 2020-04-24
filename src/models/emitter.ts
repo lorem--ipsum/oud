@@ -213,9 +213,9 @@ export class Emitter extends BaseImmutable<EmitterValue, EmitterJS> {
     const spread = this.getSpread().getValue();
     const angle = this.getAngle().getValue();
     const color = [
-      this.getHue().getValue(),
-      this.getSaturation().getValue(),
-      this.getLightness().getValue(),
+      Math.round(this.getHue().getValue() * 100) / 100,
+      Math.round(this.getSaturation().getValue() * 100) / 100,
+      Math.round(this.getLightness().getValue() * 100) / 100,
     ];
     const x = this.getX().getValue();
     const y = this.getY().getValue();

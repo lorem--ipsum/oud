@@ -4,7 +4,7 @@ import React from 'react';
 import { CircleSelector } from '../circle-selector/circle-selector';
 import { Attractor } from '../models/index';
 
-import './attractor-renderer.css';
+import './attractor-renderer.scss';
 
 export interface AttractorRendererProps extends React.Props<any> {
   selected?: boolean;

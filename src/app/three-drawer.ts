@@ -22,6 +22,33 @@ interface ParticleState {
   particles: Particle[];
 }
 
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+  let r: number;
+  let g: number;
+  let b: number;
+
+  if (s == 0) {
+    r = g = b = l; // achromatic
+  } else {
+    var hue2rgb = function hue2rgb(p: number, q: number, t: number) {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+
+    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    var p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+
+  return [r, g, b];
+}
+
 let t: number;
 
 export function init(_container: HTMLDivElement, onDone: () => void) {
@@ -84,8 +111,6 @@ function preRender(particles: Particle[]) {
   const positions = new Float32Array(MAX_POINTS * 3);
   const colors = new Float32Array(MAX_POINTS * 3);
 
-  const color = new THREE.Color();
-
   const n = Math.min(particles.length, MAX_POINTS);
 
   const halfHeight = height / 2;
@@ -94,18 +119,18 @@ function preRender(particles: Particle[]) {
   for (let i = 0; i < n; i++) {
     const p = particles[i];
 
-    const a = i * 3;
-    const b = i * 3 + 1;
-    const c = i * 3 + 2;
+    const i0 = i * 3;
+    const i1 = i * 3 + 1;
+    const i2 = i * 3 + 2;
 
-    positions[a] = -(p.px - halfWidth);
-    positions[b] = p.py - halfHeight;
-    positions[c] = 0;
+    positions[i0] = -(p.px - halfWidth);
+    positions[i1] = p.py - halfHeight;
+    positions[i2] = 0;
 
-    color.setHSL(...p.color);
-    colors[a] = color.r;
-    colors[b] = color.g;
-    colors[c] = color.b;
+    const [r, g, b] = hslToRgb(...p.color);
+    colors[i0] = r;
+    colors[i1] = g;
+    colors[i2] = b;
   }
 
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
@@ -129,8 +154,6 @@ function render(state: ParticleState) {
   const positions = geometry.attributes.position.array as Float32Array;
   const colors = geometry.attributes.color.array as Float32Array;
 
-  const color = new THREE.Color();
-
   const n = Math.min(particles.length, MAX_POINTS);
   const halfHeight = height / 2;
   const halfWidth = width / 2;
@@ -138,18 +161,18 @@ function render(state: ParticleState) {
   for (let i = 0; i < n; i++) {
     const p = particles[i];
 
-    const a = i * 3;
-    const b = i * 3 + 1;
-    const c = i * 3 + 2;
+    const i0 = i * 3;
+    const i1 = i * 3 + 1;
+    const i2 = i * 3 + 2;
 
-    positions[a] = p.px - halfWidth;
-    positions[b] = -(p.py - halfHeight);
-    positions[c] = 0;
+    positions[i0] = -(p.px - halfWidth);
+    positions[i1] = p.py - halfHeight;
+    positions[i2] = 0;
 
-    color.setHSL(...p.color);
-    colors[a] = color.r;
-    colors[b] = color.g;
-    colors[c] = color.b;
+    const [r, g, b] = hslToRgb(...p.color);
+    colors[i0] = r;
+    colors[i1] = g;
+    colors[i2] = b;
   }
 
   (geometry.attributes.position as THREE.BufferAttribute).needsUpdate = true;

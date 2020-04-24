@@ -3,7 +3,7 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
     "noEmitOnError": true,
-    "declaration": false,
+    "declaration": true,
     "removeComments": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
@@ -21,7 +21,7 @@
     "importHelpers": true,
 
     "baseUrl": ".",
-    "outDir": "build/dist",
+    "outDir": "dist",
     "module": "esnext",
     "target": "es5",
     "lib": ["es6", "dom"],
@@ -34,13 +34,6 @@
     "noImplicitThis": true,
     "noImplicitAny": true
   },
-  "exclude": [
-    "node_modules",
-    "build",
-    "scripts",
-    "acceptance-tests",
-    "webpack",
-    "jest",
-    "src/setupTests.ts"
-  ]
+  "include": ["src/app/app.tsx"],
+  "exclude": ["node_modules", "platforms"]
 }

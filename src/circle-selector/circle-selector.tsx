@@ -1,7 +1,6 @@
 import React from 'react';
 
-// tslint:disable-next-line
-require('./circle-selector.css');
+import './circle-selector.scss';
 
 export interface CircleSelectorProps extends React.Props<any> {
   x: number;
@@ -12,6 +11,8 @@ export interface CircleSelectorProps extends React.Props<any> {
 export class CircleSelector extends React.Component<CircleSelectorProps, {}> {
   render() {
     const { x, y, radius } = this.props;
+
+    // return null;
 
     return (
       <circle

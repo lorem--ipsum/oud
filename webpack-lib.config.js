@@ -1,6 +1,6 @@
 module.exports = {
   entry: {
-    oud: './src/app/app.tsx',
+    oud: './src/index.ts',
   },
   module: {
     rules: [

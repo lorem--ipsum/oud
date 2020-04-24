@@ -14,6 +14,11 @@
     "react-dom": "^16.13.1",
     "three": "^0.115.0"
   },
+  "files": [
+    "dist/**/!(*.spec).@(js|d.ts)"
+  ],
+  "main": "dist/oud.js",
+  "typings": "dist/index.d.ts",
   "prettier": {
     "trailingComma": "all",
     "tabWidth": 2,
@@ -23,15 +28,12 @@
     "endOfLine": "lf"
   },
   "scripts": {
-    "start-js": "node scripts/start.js",
-    "build-js": "node scripts/build.js",
-    "build-css": "node-sass-chokidar src/ -o src/",
-    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
-    "start": "npm-run-all -p watch-css start-js",
-    "build": "npm-run-all build-css build-js",
-    "test": "node scripts/test.js --env=jsdom",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "watch:demo": "webpack-dev-server --config webpack-demo.config.js",
+    "compile:demo": "webpack -p --config webpack-demo.config.js",
+    "watch:lib": "webpack --config webpack-lib.config.js --watch",
+    "compile:lib": "webpack -p --config webpack-lib.config.js",
+    "predeploy": "npm run compile:demo",
+    "deploy": "gh-pages -d demo"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.10",

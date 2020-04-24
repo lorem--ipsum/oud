@@ -274,6 +274,7 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
         'hue',
         'saturation',
         'lightness',
+        'lifeSpan',
       ];
     } else {
       return ['x', 'y', 'mass'];

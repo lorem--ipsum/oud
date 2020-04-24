@@ -2,7 +2,7 @@ import Icon from '@material-ui/core/Icon';
 import classNames from 'classnames';
 import React from 'react';
 
-import './icon-button.css';
+import './icon-button.scss';
 
 export interface IconButtonProps {
   icon: string;
