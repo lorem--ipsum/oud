@@ -81,7 +81,7 @@ export function start(getParticles: (time: number) => ParticleState) {
     animationFrameHandle = requestAnimationFrame(animate);
 
     const state = getParticles(t++);
-    if (!geometry) preRender(state.newParticles);
+    if (!geometry) preRender();
     render(state);
   }
 
@@ -105,44 +105,19 @@ export function clear() {
   }
 }
 
-function preRender(particles: Particle[]) {
+function preRender() {
   geometry = new THREE.BufferGeometry();
 
-  const positions = new Float32Array(MAX_POINTS * 3);
-  const colors = new Float32Array(MAX_POINTS * 3);
+  geometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(new Float32Array(MAX_POINTS * 3), 3),
+  );
+  geometry.setAttribute(
+    'color',
+    new THREE.Float32BufferAttribute(new Float32Array(MAX_POINTS * 3), 3),
+  );
 
-  const n = Math.min(particles.length, MAX_POINTS);
-
-  const halfHeight = height / 2;
-  const halfWidth = width / 2;
-
-  for (let i = 0; i < n; i++) {
-    const p = particles[i];
-
-    const i0 = i * 3;
-    const i1 = i * 3 + 1;
-    const i2 = i * 3 + 2;
-
-    positions[i0] = -(p.px - halfWidth);
-    positions[i1] = p.py - halfHeight;
-    positions[i2] = 0;
-
-    const [r, g, b] = hslToRgb(...p.color);
-    colors[i0] = r;
-    colors[i1] = g;
-    colors[i2] = b;
-  }
-
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-  geometry.setDrawRange(0, n);
-
-  geometry.computeBoundingSphere();
-
-  const material = new THREE.PointsMaterial({ size: 1, vertexColors: true });
-
-  points = new THREE.Points(geometry, material);
+  points = new THREE.Points(geometry, new THREE.PointsMaterial({ size: 1, vertexColors: true }));
   scene.add(points);
 }
 
@@ -165,8 +140,8 @@ function render(state: ParticleState) {
     const i1 = i * 3 + 1;
     const i2 = i * 3 + 2;
 
-    positions[i0] = -(p.px - halfWidth);
-    positions[i1] = p.py - halfHeight;
+    positions[i0] = p.px - halfWidth;
+    positions[i1] = -(p.py - halfHeight);
     positions[i2] = 0;
 
     const [r, g, b] = hslToRgb(...p.color);
