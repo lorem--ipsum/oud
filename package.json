@@ -1,6 +1,6 @@
 {
   "name": "oud",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "http://lorem--ipsum.github.io/oud",
   "dependencies": {
     "@material-ui/core": "^4.9.11",
