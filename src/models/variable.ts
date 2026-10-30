@@ -1,19 +1,27 @@
 import { BaseImmutable, Property } from 'immutable-class';
 
-// @ts-ignore
-import * as math from 'mathjs/number';
+import { parse, type EvalFunction } from 'mathjs/number';
+
+const compiledExpressions = new Map<string, EvalFunction>();
+
+function compile(expression: string): EvalFunction {
+  let compiled = compiledExpressions.get(expression);
+  if (!compiled) {
+    compiled = parse(expression).compile();
+    compiledExpressions.set(expression, compiled);
+  }
+  return compiled;
+}
 
 export interface VariableValue {
   expression: string;
   currentValue?: number;
-  parsedExpression?: math.EvalFunction;
 }
 
 export class Variable extends BaseImmutable<VariableValue, VariableValue> {
   static PROPERTIES: Property[] = [
     { name: 'expression' },
     { name: 'currentValue', defaultValue: 0 },
-    { name: 'parsedExpression', defaultValue: null },
   ];
 
   static fromJS(params: VariableValue | string) {
@@ -24,7 +32,6 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
 
   public expression: string;
   public currentValue: number;
-  public parsedExpression: math.EvalFunction;
 
   constructor(params: VariableValue) {
     super(params);
@@ -42,17 +49,12 @@ export class Variable extends BaseImmutable<VariableValue, VariableValue> {
     const v = this.valueOf();
 
     v.expression = newExpression;
-    if (newExpression !== this.expression) v.parsedExpression = undefined;
 
     return new Variable(v);
   }
 
   eval(scope: Record<string, number>): number {
-    if (!this.parsedExpression) {
-      this.parsedExpression = math.parse(this.expression).compile();
-    }
-
-    return this.parsedExpression.evaluate(scope);
+    return compile(this.expression).evaluate(scope);
   }
 
   update(scope: Record<string, number>) {

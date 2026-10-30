@@ -40,7 +40,7 @@ export class Oud extends React.Component<OudProps, OudState> {
   constructor(props: OudProps, context: any) {
     super(props, context);
 
-    const selectedExample = props.exampleIndex ? EXAMPLES[props.exampleIndex] : undefined;
+    const selectedExample = props.exampleIndex !== undefined ? EXAMPLES[props.exampleIndex] : undefined;
 
     this.state = {
       universe: selectedExample

@@ -6,6 +6,30 @@ export interface Example {
   description?: string;
 }
 
+type EmitterJS = NonNullable<UniverseJS['emitters']>[number];
+type AttractorJS = NonNullable<UniverseJS['attractors']>[number];
+
+function emitters(count: number, props: Omit<EmitterJS, 'name' | 'label'>): EmitterJS[] {
+  return Array.from({ length: count }, (_, index) => ({
+    name: `Emitter #${index}`,
+    label: `Emitter #${index}`,
+    spread: 'pi / 4',
+    emissionRate: 'true',
+    lifeSpan: '500',
+    saturation: '.7',
+    lightness: '.7',
+    ...props,
+  }));
+}
+
+function attractors(count: number, props: Omit<AttractorJS, 'name' | 'label'>): AttractorJS[] {
+  return Array.from({ length: count }, (_, index) => ({
+    name: `Attractor #${index}`,
+    label: `Attractor #${index}`,
+    ...props,
+  }));
+}
+
 export const EXAMPLES: Example[] = [
   {
     label: 'Waves',
@@ -235,7 +259,7 @@ export const EXAMPLES: Example[] = [
     },
   },
   {
-    label: 'Small (200x200)',
+    label: 'Small',
     config: {
       selectedItems: [],
       controlsHidden: false,
@@ -245,8 +269,8 @@ export const EXAMPLES: Example[] = [
         return {
           name: `Emitter #${index}`,
           label: `Emitter #${index}`,
-          x: `cos(${speed} + j*pi/(n/2))*60 + 100`,
-          y: `-sin(${speed} + j*pi/(n/2))*60 + 100`,
+          x: `cos(${speed} + j*pi/(n/2))*150 + 250`,
+          y: `-sin(${speed} + j*pi/(n/2))*150 + 250`,
           angle: `-${speed} + j*pi/(n/2) + (j +1) * pi + cos(${speed})*10`,
           spread: 'pi / 4',
           velocity: '20',
@@ -262,15 +286,15 @@ export const EXAMPLES: Example[] = [
         {
           name: 'Attractor #0',
           label: 'Attractor #0',
-          x: '100',
-          y: '100',
+          x: '250',
+          y: '250',
           mass: 'sin(t / 50) * 5',
         },
       ],
     },
   },
   {
-    label: 'Corners (200x200)',
+    label: 'Corners',
     config: {
       selectedItems: [],
       controlsHidden: false,
@@ -278,8 +302,8 @@ export const EXAMPLES: Example[] = [
         {
           name: `Emitter #0`,
           label: `Emitter #0`,
-          x: '0',
-          y: '0',
+          x: '100',
+          y: '100',
           angle: `pi / 4`,
           spread: 'pi / 4',
           velocity: '10',
@@ -293,8 +317,8 @@ export const EXAMPLES: Example[] = [
         {
           name: `Emitter #1`,
           label: `Emitter #1`,
-          x: '200',
-          y: '0',
+          x: '400',
+          y: '100',
           angle: `-5pi / 4`,
           spread: '-pi / 4',
           velocity: '10',
@@ -308,8 +332,8 @@ export const EXAMPLES: Example[] = [
         {
           name: `Emitter #2`,
           label: `Emitter #2`,
-          x: '200',
-          y: '200',
+          x: '400',
+          y: '400',
           angle: `-3pi / 4`,
           spread: '-pi / 4',
           velocity: '10',
@@ -323,8 +347,8 @@ export const EXAMPLES: Example[] = [
         {
           name: `Emitter #3`,
           label: `Emitter #3`,
-          x: '0',
-          y: '200',
+          x: '100',
+          y: '400',
           angle: `-pi / 4`,
           spread: '-pi / 4',
           velocity: '10',
@@ -341,11 +365,50 @@ export const EXAMPLES: Example[] = [
         {
           name: 'Attractor #0',
           label: 'Attractor #0',
-          x: '100',
-          y: '100',
+          x: '250',
+          y: '250',
           mass: 'sin(t / 20) * 5',
         },
       ],
+    },
+  },
+  {
+    label: 'Rose',
+    config: {
+      selectedItems: [],
+      controlsHidden: false,
+      emitters: emitters(1, {
+        x: '250 + cos(3 * t / 100) * cos(t / 100) * 180',
+        y: '250 + cos(3 * t / 100) * sin(t / 100) * 180',
+        angle: 't / 100 + pi / 2',
+        spread: 'pi / 6',
+        velocity: '6',
+        batchSize: '4',
+        lifeSpan: '400',
+        hue: 'sin(t / 400) + 1',
+      }),
+      attractors: [],
+    },
+  },
+  {
+    label: 'Interference',
+    config: {
+      selectedItems: [],
+      controlsHidden: false,
+      emitters: emitters(2, {
+        x: '30',
+        y: '150 + j * 200',
+        angle: '0',
+        velocity: '40',
+        batchSize: '6',
+        emissionRate: 't % 1 == 0',
+        hue: 'sin(t / 500) + 1',
+      }),
+      attractors: attractors(5, {
+        x: '250',
+        y: '100 + j * 75',
+        mass: 'sin(t / 50 + j) * 25',
+      }),
     },
   },
 ];

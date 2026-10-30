@@ -1,7 +1,7 @@
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+import Input from '@mui/material/Input';
+import InputLabel from '@mui/material/InputLabel';
 import classNames from 'classnames';
 import { BaseImmutable } from 'immutable-class';
 import React from 'react';
@@ -35,11 +35,9 @@ export class VariableInput<T extends BaseImmutable<any, any>> extends React.Comp
     this.state = {};
   }
 
-  initFromProps(props: VariableInputProps<T>) {
+  initFromProps(props: VariableInputProps<T>, previousTarget?: T) {
     const { target, path } = props;
     const { error } = this.state;
-
-    const previousTarget = this.props.target;
 
     const isNewTarget = previousTarget && !previousTarget.equals(target);
 
@@ -51,12 +49,14 @@ export class VariableInput<T extends BaseImmutable<any, any>> extends React.Comp
     });
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.initFromProps(this.props);
   }
 
-  componentWillReceiveProps(nextProps: VariableInputProps<T>) {
-    this.initFromProps(nextProps);
+  componentDidUpdate(prevProps: VariableInputProps<T>) {
+    if (prevProps.target !== this.props.target || prevProps.path !== this.props.path) {
+      this.initFromProps(this.props, prevProps.target);
+    }
   }
 
   onChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -46,7 +46,7 @@ function arc(center: CartesianVector, radius: number, startAngle: number, endAng
 
 const KNOB_PADDING = 10;
 
-export interface EmitterRendererProps extends React.Props<any> {
+export interface EmitterRendererProps extends React.ComponentProps<any> {
   emitter: Emitter;
   selected?: boolean;
   onClick: (event: React.MouseEvent<SVGGElement>) => void;

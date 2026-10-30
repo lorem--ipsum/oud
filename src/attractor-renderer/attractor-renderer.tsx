@@ -6,7 +6,7 @@ import { Attractor } from '../models/index';
 
 import './attractor-renderer.scss';
 
-export interface AttractorRendererProps extends React.Props<any> {
+export interface AttractorRendererProps extends React.ComponentProps<any> {
   selected?: boolean;
   attractor: Attractor;
   onClick: (event: React.MouseEvent<SVGGElement>) => void;

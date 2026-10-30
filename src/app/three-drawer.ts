@@ -123,8 +123,8 @@ function preRender(particles: Particle[]) {
     const i1 = i * 3 + 1;
     const i2 = i * 3 + 2;
 
-    positions[i0] = -(p.px - halfWidth);
-    positions[i1] = p.py - halfHeight;
+    positions[i0] = p.px - halfWidth;
+    positions[i1] = halfHeight - p.py;
     positions[i2] = 0;
 
     const [r, g, b] = hslToRgb(...p.color);
@@ -165,8 +165,8 @@ function render(state: ParticleState) {
     const i1 = i * 3 + 1;
     const i2 = i * 3 + 2;
 
-    positions[i0] = -(p.px - halfWidth);
-    positions[i1] = p.py - halfHeight;
+    positions[i0] = p.px - halfWidth;
+    positions[i1] = halfHeight - p.py;
     positions[i2] = 0;
 
     const [r, g, b] = hslToRgb(...p.color);

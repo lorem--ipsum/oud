@@ -2,7 +2,7 @@ import React from 'react';
 
 import './circle-selector.scss';
 
-export interface CircleSelectorProps extends React.Props<any> {
+export interface CircleSelectorProps extends React.ComponentProps<any> {
   x: number;
   y: number;
   radius: number;

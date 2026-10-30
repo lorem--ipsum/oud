@@ -106,7 +106,7 @@ export class Detail<T extends BaseImmutable<any, any>> extends React.Component<
     const { items, previous, next, fields, remove, duplicate } = this.props;
     const { item } = this.state;
 
-    const inputs: JSX.Element[] = [];
+    const inputs: React.JSX.Element[] = [];
     for (let i = 0; i < fields.length; i += 2) {
       inputs.push(
         <div className="row" key={i}>

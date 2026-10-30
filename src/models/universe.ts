@@ -296,7 +296,7 @@ export class Universe extends BaseImmutable<UniverseValue, UniverseJS> {
       }
     } else {
       if (selectedItems.indexOf(item.name) > -1) {
-        newSelectedItems = selectedItems.filter(n => n !== name);
+        newSelectedItems = selectedItems.filter(n => n !== item.name);
       } else {
         newSelectedItems = selectedItems.concat([item.name]);
 

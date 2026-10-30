@@ -9,10 +9,10 @@ export function Stats(props: StatsProps) {
   const { particlesCount, time } = props;
 
   const fpsHistory = React.useRef<number[]>([]);
-  const now = React.useRef<number>();
+  const now = React.useRef<number | undefined>(undefined);
   const before = React.useRef<number>(Date.now());
   const [fps, setFps] = React.useState<number>();
-  const requestRef = React.useRef<number>();
+  const requestRef = React.useRef<number | undefined>(undefined);
 
   const animate = () => {
     requestRef.current = requestAnimationFrame(animate);
